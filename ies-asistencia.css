@@ -1,0 +1,159 @@
+body {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+
+.row {
+  margin-bottom: 1rem;
+}
+
+
+#datos-usuario #nombre-usuario {
+  font-weight: bold;
+  margin-bottom: 0;
+}
+
+
+h1 {
+  margin-bottom: 2rem;
+}
+
+h3 {
+  margin-top: 1rem;
+}
+
+p {
+  margin-bottom: 0.4rem;
+}
+
+#boton-cerrar-sesion {
+  float: right;
+}
+
+#zona-app {
+  margin-top: 1rem;
+}
+
+#zona-datos-personales {
+  margin-top: 1rem;
+}
+
+
+.g-signin2 {
+  margin: 0 0 1rem 3rem;
+}
+
+#boton-cerrar-sesion {
+  float: right;
+}
+
+#nombre-usuario {
+  margin-top: 1rem;
+}
+
+.foto {
+  margin: 0 0 1rem 4rem;
+}
+
+
+
+h5 {
+  margin-top: 3rem;
+}
+
+
+#fecha-seleccionada {
+  text-align: center;
+}
+
+#zona-boton-fecha-mas {
+  text-align: right;
+}
+
+#zona-sesiones button {
+  text-align: left;
+}
+
+#zona-sesiones .badge {
+  margin-right: 1rem;
+  background-color: #000;
+}
+
+.sesion-no-visible {
+  display: none;
+}
+
+
+
+#zona-alumnos {
+  margin-top: 2rem;
+}
+
+.zona-alumno {
+  margin: 0.5rem 0.5rem 0.5rem 0.5rem;
+  padding: 0.6rem;
+}
+
+.zona-alumno-sin-nada {
+  background-color: transparent;
+  border-color: white;
+  border-width: 1px;
+  border-style: solid;
+  border-color: transparent;
+  border-image: initial;
+  border-radius: 0.25rem;
+}
+
+.zona-nombre-alumno {
+  padding: 0rem 0.5rem 0.5rem 0.5rem;
+}
+
+.zona-botones-alumno {}
+
+.zona-botones-alumno button {
+  text-align: center;
+  font-size: 0.7rem;
+  margin-right: 0.2rem;
+}
+
+.zona-edad {
+  font-size: 0.8rem;
+  margin: -0.2rem 0 0.2rem 0;
+}
+
+#mensaje-cargando-alumnos {
+  margin: 2rem 1rem;
+  color: #666;
+}
+
+.aviso-por-sms {
+  font-size: 0.7rem;
+}
+
+button:enabled {
+  cursor: pointer;
+}
+
+.estado-alumno {
+  font-size: 0.8rem;
+  text-align: center;
+  font-weight: bold;
+  color: #FFF;
+  background-color: #FFF;
+}
+
+.estado-retrasado {
+  color: #FFF;
+  background-color: #2b92a6; 
+}
+
+.estado-falto {
+  color: #FFF;
+  background-color: #c13b47; 
+}
+
+.estado-justificada {
+  color: #FFF;
+  background-color: green; 
+}

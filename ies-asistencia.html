@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de faltas de asistencia</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-------------------- ESTILOS ------------------>
+
+  <!-- Bootstrap 4 -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
+
+  <!-- Font Awesome -->
+  <link href="https://use.fontawesome.com/releases/v5.0.1/css/all.css" rel="stylesheet">
+
+  <!-- Vue-Snotify -->
+  <link rel="stylesheet" href="https://unpkg.com/vue-snotify@2.0.3/styles/material.css">
+
+  <!-- Mis estilos -->
+  <link rel="stylesheet" href="ies-asistencia.css">
+
+
+  <!-------------------- SCRIPTS ------------------>
+
+  <script src="https://apis.google.com/js/platform.js">
+  </script>
+
+  <!-- Jquery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
+
+  <!-- Bootstrap 4 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
+
+  <!-- Moment -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/locale/es.js"></script>
+
+  <!-- Lodash -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/4.5.0/firebase.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/4.5.0/firebase-firestore.js"></script>
+
+
+</head>
+
+<body>
+
+  <div class="container" id="app-vue">
+
+    <!-- Zona de conexion/info/desconexion del usuario -->
+    <div id="datos-usuario">
+    </div>
+
+    <div id="nombre-usuario" v-show="!conectandoUsuario">
+      <strong>{{ nombreDeUsuario }}</strong>
+    </div>
+    <!-- Fin de zona de conexion/info/desconexion del usuario -->
+
+
+    <div v-show="usuarioAutenticado" id="zona-app">
+      <h1>Faltas de asistencia</h1>
+
+
+      <div id="zona-fecha" class="row" v-if="sesionesProfesorCargadas">
+        <div class="col" id="zona-boton-fecha-menos">
+          <button role='button' type="button" class="btn btn-outline-info" id="boton-fecha-menos"
+            v-on:click="reducirFecha">⬅</button>
+        </div>
+        <div class="col" id="fecha-seleccionada">
+          {{ fechaSeleccionadaEnTexto }}
+        </div>
+        <div class="col" id="zona-boton-fecha-mas">
+          <button role='button' type="button" class="btn btn-outline-info" id="boton-fecha-mas"
+            v-on:click="aumentarFecha">➡</button>
+        </div>
+      </div>
+
+
+
+      <div id="zona-sesiones" v-if="sesionesProfesorCargadas">
+        <p id="mensaje-cargando-sesiones" v-show="!sesionesProfesorCargadas">
+          <i class="fa fa-refresh fa-spin fa-3x fa-fw"></i>
+        </p>
+        <div class="list-group" v-show="sesionesProfesorCargadas">
+          <button v-on:click="seleccionarSesion(sesion)" v-for="(sesion, index) in sesiones" role='button' type="button"
+            v-bind:class="obtenerClaseSesion(sesion)">
+            <span class="badge badge-default">{{sesion}}</span> <span>{{ obtenerTextoSesion(sesion) }}</span>
+          </button>
+        </div>
+      </div>
+
+
+      <div v-show="cargandoAlumnoSesionSeleccionada" id="mensaje-cargando-alumnos">
+        <p>Cargando los alumnos de la sesión seleccionada...</p>
+      </div>
+
+      <div id="zona-alumnos" v-show="cargadasFaltasPreexitentes">
+
+        <div v-for="alumno in alumnosDelGrupoEnPantalla" v-bind:class="obtenerClaseCssAlumno(alumno)">
+          <div class="col-xs-4 col-md-4 col-lg-2 zona-imagen-alumno">
+
+            <img v-bind:src="obtenerEnlaceFoto(alumno.matricula)" class="imagen-real-alumno img-fluid"
+              @error="imagenAvatarError">
+            <div class="estado-alumno"
+              :class="{ 'estado-retrasado': alumno.llegoConRetraso, 'estado-falto': alumno.eseAlumnoFalto, 'estado-justificada': alumno.laFaltaDelAlumnoEstaJustificada}">
+              <span v-show="!alumno.eseAlumnoFalto && !alumno.llegoConRetraso">TODO OK</span>
+              <span v-show="alumno.llegoConRetraso">RETRASADO</span>
+              <span v-show="alumno.eseAlumnoFalto && !alumno.laFaltaDelAlumnoEstaJustificada">FALTA</span>
+              <span v-show="alumno.laFaltaDelAlumnoEstaJustificada">FALTA JUSTIFICADA</span>
+            </div>
+          </div>
+          <div class="col-xs-8 col-md-8 col-lg-10 zona-nombre-alumno">
+            <div>
+              <strong>{{ alumno.apellidos }}</strong>, {{ alumno.nombre }}
+            </div>
+            <div class="zona-edad">
+              <span v-if="alumno.datos.edad != null">{{ alumno.datos.edad }} años</span>
+              <span v-if="alumno.datos.edad == null">Calculando edad...</span>
+            </div>
+            <div class=" zona-botones-alumno ">
+
+              <button role="button" type="button" class="btn btn-outline-info btn-sm "
+                v-on:click="ponerRetraso(alumno) " :disabled="alumno.poniendoRetraso"
+                v-show="!alumno.eseAlumnoFalto  && !alumno.llegoConRetraso && !alumno.convirtiendoFaltaEnRetraso && !alumno.poniendoFalta"
+                :disabled="alumno.poniendoRetraso ">
+                <span v-show="!alumno.poniendoRetraso">Retraso</span>
+                <span v-show="alumno.poniendoRetraso">Poniendo retraso...</span>
+              </button>
+
+              <button role="button" type="button" class="btn btn-outline-secondary btn-sm "
+                v-show="alumno.llegoConRetraso && !alumno.convirtiendoRetrasoEnFalta"
+                v-on:click="quitarRetraso(alumno) " :disabled="alumno.quitandoRetraso "
+                :disabled="alumno.quitandoRetraso ">
+                <span v-show=" !alumno.quitandoRetraso ">Quitar retraso</span>
+                <span v-show="alumno.quitandoRetraso ">Quitando retraso...</span>
+              </button>
+
+              <button role="button" type="button" class="btn btn-outline-danger btn-sm "
+                v-show="!(alumno.eseAlumnoFalto) && !(alumno.llegoConRetraso) && !(alumno.poniendoRetraso) && !(alumno.quitandoRetraso)"
+                v-on:click="ponerFalta(alumno, false) " :disabled="alumno.poniendoFalta">
+                <span v-show="!alumno.poniendoFalta ">Falta</span>
+                <span v-show="alumno.poniendoFalta ">Poniendo falta...</span>
+              </button>
+
+              <button role="button" type="button" class="btn btn-outline-danger btn-sm "
+                v-show="!alumno.eseAlumnoFalto && alumno.llegoConRetraso && !alumno.quitandoRetraso"
+                v-on:click="convertirRetrasoEnFalta(alumno) " :disabled="alumno.convirtiendoRetrasoEnFalta">
+                <span v-show="!alumno.convirtiendoRetrasoEnFalta ">Convertir retraso en falta</span>
+                <span v-show="alumno.convirtiendoRetrasoEnFalta ">Convirtiendo retraso a falta...</span>
+              </button>
+
+              <button role="button" type="button" class="btn btn-outline-info btn-sm "
+                v-show="alumno.eseAlumnoFalto && !alumno.llegoConRetraso && !alumno.laFaltaDelAlumnoEstaJustificada && !alumno.quitandoFalta && !alumno.faltaIntroducidaPorElTutor"
+                v-on:click="convertirFaltaEnRetraso(alumno) " :disabled="alumno.convirtiendoFaltaEnRetraso">
+                <span v-show="!alumno.convirtiendoFaltaEnRetraso ">Convertir falta en retraso</span>
+                <span v-show="alumno.convirtiendoFaltaEnRetraso ">Convirtiendo falta a retraso...</span>
+              </button>
+
+              <button role="button " type="button " class="btn btn-outline-danger btn-sm "
+                v-on:click="ponerFalta(alumno, true) " :disabled="alumno.poniendoFalta || alumno.poniendoFaltaConSms"
+                v-show="!(alumno.eseAlumnoFalto) 
+                        && ((alumno.poniendoFalta && alumno.poniendoFaltaConSms) || (!alumno.poniendoFalta && !alumno.poniendoFaltaConSms)) 
+                        && (alumno.datos.movilMadre.length > 0 || alumno.datos.movilPadre.length > 0) 
+                        && !(alumno.poniendoRetraso) && !(alumno.quitandoRetraso)
+                        && !(alumno.llegoConRetraso)" :disabled="alumno.poniendoFaltaConSms">
+                <span v-show="!alumno.poniendoFalta && !alumno.poniendoFaltaConSms">Falta y SMS a los padres</span>
+                <span v-show="alumno.poniendoFalta  && alumno.poniendoFaltaConSms">Poniendo falta enviando SMS a los
+                  padres...</span>
+              </button>
+
+              <button role="button " type="button " class="btn btn-outline-secondary btn-sm "
+                v-show="alumno.eseAlumnoFalto && !alumno.faltaIntroducidaPorElTutor && !alumno.laFaltaDelAlumnoEstaJustificada && !alumno.llegoConRetraso && !alumno.poniendoRetraso && !alumno.quitandoRetraso && !alumno.convirtiendoFaltaEnRetraso"
+                v-on:click="quitarFalta(alumno) " :disabled="alumno.quitandoFalta ">
+                <span v-show=" !alumno.quitandoFalta ">Quitar falta</span>
+                <span v-show="alumno.quitandoFalta ">Quitando falta...</span>
+              </button>
+
+              <span class="aviso-por-sms" v-show="alumno.eseAlumnoFalto && alumno.padresAvisadosPorSms">Padres avisados
+                por SMS</span>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+
+    </div>
+  </div>
+
+
+
+
+  <vue-snotify></vue-snotify>
+
+
+  </div>
+  <!-- /zona-app -->
+
+  </div>
+  <!-- /container -->
+
+
+
+
+  <!-------------------- SCRIPTS ------------------>
+
+  <!-- Vuejs -->
+  <script src=" https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.4/vue.js "></script>
+
+  <!-- Vue Multiselect -->
+  <script src=" https://unpkg.com/vue-multiselect@2.0.3/dist/vue-multiselect.min.js "></script>
+
+  <!-- Vue-Snotify -->
+  <script src="https://unpkg.com/vue-snotify@2.0.3/vue-snotify.js "></script>
+
+  <script src="ies-asistencia.js "></script>
+
+
+</body>
+
+</html>
