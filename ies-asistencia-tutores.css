@@ -1,0 +1,163 @@
+#toast-container>div {
+  opacity: 1 !important;
+}
+
+
+body {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+h3 {
+  margin-top: 2rem;
+}
+
+.row {
+  margin-bottom: 1rem;
+}
+
+.row .row {
+  margin-top: 1rem;
+  margin-bottom: 0;
+}
+
+#datos-usuario #nombre-usuario {
+  font-weight: bold;
+  margin-bottom: 0;
+}
+
+#fecha-seleccionada {
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+#zona-boton-fecha-mas {
+  text-align: right;
+}
+
+#zona-sesiones button {
+  text-align: left;
+}
+
+#zona-sesiones .badge {
+  margin-right: 1rem;
+  background-color: #BBB;
+}
+
+#zona-alumnos {
+  margin-top: 2rem;
+}
+
+.zona-alumno {
+  margin: 0.5rem 0.5rem 0.5rem 0.5rem;
+  padding: 0.6rem;
+}
+
+.zona-alumno-sin-nada {
+  background-color: transparent;
+  border-color: white;
+  border-width: 1px;
+  border-style: solid;
+  border-color: transparent;
+  border-image: initial;
+  border-radius: 0.25rem;
+}
+
+.zona-nombre-alumno {
+  padding: 0rem 0.5rem 0.5rem 0.5rem;
+}
+
+.zona-botones-alumno {}
+
+.zona-botones-alumno button {
+  text-align: center;
+  font-size: 0.7rem;
+  margin-right: 0.2rem;
+}
+
+@media only screen and (max-width: 580px) {
+  .zona-imagen-alumno {
+    width: 40%;
+  }
+  .zona-nombre-alumno {
+    width: 55%;
+  }
+}
+
+.weekday {
+  text-align: center;
+}
+
+.dia {
+  text-align: center;
+}
+
+.sesion {
+  text-align: left;
+  padding: 0 0.4rem;
+  font-size: 0.8rem;
+  margin-top: 0 !important;
+}
+
+.sesion-con-falta {
+  background-color: #ffd7d7;
+}
+
+.sesion-con-falta-justificada {
+  background-color: #baddba;
+}
+
+.datos-falta {
+  font-size: 0.7rem;
+}
+
+.datos-situacion-falta {
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+.materia-correspondiente-a-esa-sesion {
+  cursor: pointer;
+}
+
+.hora-sesion {
+  font-weight: bold;
+}
+
+#mensajes-proceso {
+  font-size: 0.7rem;
+  margin-top: 1rem;
+}
+
+.calendar {
+  margin-top: 1rem;
+}
+
+#listado-faltas {
+  display: none;
+}
+
+.info-dia {
+  font-weight: bold;
+}
+
+.sesion-pendiente-cambio {
+  background-color: yellow;
+}
+
+.dia-interno {
+  margin: 0.1rem;
+  border: 1px solid #d1d1d1;
+  border-radius: 0.2rem;
+}
+
+select.form-control {
+  width: auto !important;
+}
+
+#zona-edad-alumno {
+  margin-bottom: 1rem;
+  font-size: 0.8rem;
+}

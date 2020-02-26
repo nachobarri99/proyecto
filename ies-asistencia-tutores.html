@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Asistencia 2017-2018 - Módulo de tutores</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-------------------- ESTILOS ------------------>
+
+    <!-- Bootstrap 4 -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+
+    <!-- Bootstrap 3 Datepicker -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.standalone.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker3.min.css"
+    />
+
+    <!-- Pickaday -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.6.1/css/pikaday.min.css"
+    />
+
+    <!-- Toastr -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"
+    />
+
+    <!-- Mis estilos -->
+    <link rel="stylesheet" href="ies-asistencia-tutores.css" />
+
+    <!-------------------- SCRIPTS ------------------>
+
+    <!-- Jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
+
+    <!-- Bootstrap 4 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
+
+    <!-- Moment -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/locale/es.js"></script>
+
+    <!-- Bootstrap 3 Datepicker -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/locales/bootstrap-datepicker.es.min.js"></script>
+
+    <!-- Pickaday -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.6.1/pikaday.min.js"></script>
+
+    <!-- Lodash -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/4.5.0/firebase.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.5.0/firebase-firestore.js"></script>
+
+    <!-- Toastr -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  </head>
+
+  <body>
+    <div class="container" id="app-vue">
+      <!--
+    <div id="cerrado-por-mantenimiento">
+      <p>Estamos realizando tareas de mantenimiento.</p>
+      <p>Se avisará por Telegram en cuanto esta aplicación vuelva a estar operativa.</p>
+      <p>Sentimos las molestias.</p>
+    </div>
+    -->
+
+      <div id="datos-usuario"></div>
+
+      <div id="nombre-usuario">
+        <strong>{{ nombreDeUsuario }}</strong>
+      </div>
+
+      <div v-if="listadoGrupos.length > 0">
+        Selecciona un grupo:
+        <select class="form-control" v-model="grupoSeleccionado">
+          <option disabled value="">Grupo</option>
+          <option v-for="grupo in listadoGrupos" v-bind:value="grupo">
+            {{ grupo }}
+          </option>
+        </select>
+      </div>
+
+      <div v-if="listadoAlumnos.length > 0">
+        Selecciona un alumno:
+        <select class="form-control" v-model="alumnoSeleccionado">
+          <option disabled value="">Alumno</option>
+          <option
+            v-for="alumno in listadoAlumnos"
+            v-bind:value="alumno.matricula"
+          >
+            {{ alumno.nombreCompleto }}
+          </option>
+        </select>
+      </div>
+
+      <div v-show="false">
+        <input type="checkbox" id="checkbox" v-model="verAlumnosYaNoEstan" />
+        <label for="checkbox"
+          >Ver también alumnos que ya no están en el Centro</label
+        >
+      </div>
+
+      <ul
+        id="listado-faltas"
+        v-if="listadoFaltasAlumnosSeleccionado.length > 0"
+      >
+        <li v-for="falta in listadoFaltasAlumnosSeleccionado">
+          {{ falta.dia }}/{{ falta.mes }}/{{ falta.ano }} sesión {{ falta.sesion
+          }} ({{ falta.materia }})
+        </li>
+      </ul>
+
+      <div
+        class="calendar"
+        v-if="alumnoSeleccionado !== null && datosAlumnoSeleccionado !== null"
+        v-show="faltasDelAlumnoCargadas"
+      >
+        <div id="zona-edad-alumno">
+          Fecha de nacimiento: {{ datosAlumnoSeleccionado.fechaRealNacimiento }}
+          ({{ datosAlumnoSeleccionado.edad }} años)
+        </div>
+
+        <div id="zona-fecha" class="row">
+          <div class="col-1" id="zona-boton-fecha-menos">
+            <i class="fa fa-fw fa-chevron-left" @click="subtractMonth"></i>
+          </div>
+          <div class="col-8" id="fecha-seleccionada">
+            {{ month }} {{ year }}
+          </div>
+          <div class="col-1" id="zona-boton-fecha-mas">
+            <i class="fa fa-fw fa-chevron-right" @click="addMonth"></i>
+          </div>
+        </div>
+
+        <div class="dates row" v-for="semana in diasDelMes">
+          <div class="col-md-2 col-xs-12 dia" v-for="dia in semana">
+            <div v-bind:class="getClassDia(dia)">
+              <div class="info-dia">
+                {{ dia.numero }} {{ dia.diaSemana }}
+              </div>
+
+              <div
+                class="row sesion"
+                v-for="sesion in dia.sesiones"
+                v-bind:class="getClassSesion(sesion)"
+              >
+                <div class="col-6">
+                  <span class="hora-sesion">{{ sesion.sesion }}</span>
+                  <span
+                    class="materia-correspondiente-a-esa-sesion"
+                    v-on:click="cambiarEstadoFalta(dia, sesion)"
+                    >{{ sesion.materia }}</span
+                  >
+                  <!--<span class="datos-falta" v-if="sesion.falta != null">{{ sesion.falta.materia }}</span>-->
+                </div>
+                <div
+                  class="col-6 datos-situacion-falta"
+                  v-if="sesion.falta != null"
+                >
+                  <span v-html="obtenerEstadoFalta(sesion)"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="mensajes-proceso" v-html="mensajesProceso" v-if="false"></div>
+    </div>
+    <!-- /container -->
+
+    <!-------------------- SCRIPTS ------------------>
+
+    <!-- Vuejs -->
+    <script src=" https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.4/vue.js "></script>
+
+    <script src="ies-asistencia-tutores.js "></script>
+  </body>
+</html>

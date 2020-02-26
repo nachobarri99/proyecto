@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Asistencia - Módulo de tutores</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-------------------- ESTILOS ------------------>
+
+    <!-- Bootstrap 4 -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+
+    <!-- Bootstrap 3 Datepicker -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.standalone.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker3.min.css"
+    />
+
+    <!-- Pickaday -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.6.1/css/pikaday.min.css"
+    />
+
+    <!-- Toastr -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"
+    />
+
+    <!-- Mis estilos -->
+    <link rel="stylesheet" href="ies-asistencia-tutores-informe.css" />
+
+    <!-------------------- SCRIPTS ------------------>
+
+    <!-- Jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
+
+    <!-- Bootstrap 4 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
+
+    <!-- Moment -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/locale/es.js"></script>
+
+    <!-- Bootstrap 3 Datepicker -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/locales/bootstrap-datepicker.es.min.js"></script>
+
+    <!-- Pickaday -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.6.1/pikaday.min.js"></script>
+
+    <!-- Lodash -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/4.5.0/firebase.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.5.0/firebase-firestore.js"></script>
+
+    <!-- Toastr -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  </head>
+
+  <body>
+    <div class="container" id="app-vue">
+      <!--
+    <div id="cerrado-por-mantenimiento">
+      <p>Estamos realizando tareas de mantenimiento.</p>
+      <p>Se avisará por Telegram en cuanto esta aplicación vuelva a estar operativa.</p>
+      <p>Sentimos las molestias.</p>
+    </div>
+    -->
+
+      <div id="datos-usuario" class="no-impresion"></div>
+
+      <div id="nombre-usuario" class="no-impresion">
+        <strong>{{ nombreDeUsuario }}</strong>
+      </div>
+
+      <div v-if="listadoGrupos.length > 0" class="no-impresion">
+        Selecciona un grupo:
+        <select class="form-control" v-model="grupoSeleccionado">
+          <option disabled value="">Grupo</option>
+          <option v-for="grupo in listadoGrupos" v-bind:value="grupo">
+            {{ grupo }}
+          </option>
+        </select>
+      </div>
+
+      <div v-if="listadoAlumnos.length > 0" class="no-impresion">
+        Selecciona un alumno:
+        <select class="form-control" v-model="alumnoSeleccionado">
+          <option disabled value="">Alumno</option>
+          <option
+            v-for="alumno in listadoAlumnos"
+            v-bind:value="alumno.matricula"
+          >
+            {{ alumno.nombreCompleto }}
+          </option>
+        </select>
+      </div>
+
+      <div v-if="listadoAlumnos.length > 0" class="no-impresion">
+        Selecciona una materia:
+        <select class="form-control" v-model="materiaSeleccionada">
+          <option value="">Todas las materias</option>
+          <option
+            v-for="materia in datosMateriasAlumnoSeleccionado"
+            v-bind:value="materia.materia"
+          >
+            {{ materia.materia }}
+          </option>
+        </select>
+      </div>
+
+      <div v-if="!faltasDelAlumnoCargadas && alumnoSeleccionado != null">
+        Cargando faltas...
+      </div>
+
+      <div v-if="faltasDelAlumnoCargadas">
+        <button
+          type="button"
+          class="no-impresion boton-impresion btn btn-outline-secondary"
+          onClick="window.print()"
+        >
+          Imprimir
+        </button>
+
+        <div id="zona-logo">
+          <img
+            src="https://raw.githubusercontent.com/miguelbayon/imagenes-publicas/master/logo.png"
+          />
+          <p>
+            Instituto de Educación Secundaria Obligatoria (ESO), Bachillerato y
+            Ciclos Formativos
+          </p>
+          <p>
+            Avda. del Romeral 125, 24191, Villabalter, León (España) - Tlf:
+            987846315 - Email: 24016481@educa.jcyl.es
+          </p>
+        </div>
+
+        <h1 id="titulo-informe">Faltas de asistencia</h1>
+
+        <div class="no-impresion">
+          <span
+            class="badge badge-secondary boton"
+            v-on:click="selecionarVistaPorFechas()"
+            v-show="tipoVisualizacion == 'porMateria'"
+            >Por fecha</span
+          >
+          <span
+            class="badge badge-info"
+            v-show="tipoVisualizacion == 'porFecha'"
+            >Por fecha</span
+          >
+          <span
+            class="badge badge-secondary boton"
+            v-on:click="selecionarVistaPorMaterias()"
+            v-show="tipoVisualizacion == 'porFecha'"
+            >Por materias</span
+          >
+          <span
+            class="badge badge-info"
+            v-show="tipoVisualizacion == 'porMateria'"
+            >Por materias</span
+          >
+
+          <span
+            class="badge badge-secondary boton"
+            v-on:click="cambiarMostrarJustificadas(true)"
+            v-show="mostrarJustificadas == false"
+            >Justificadas</span
+          >
+          <span
+            class="badge badge-success boton"
+            v-on:click="cambiarMostrarJustificadas(false)"
+            v-show="mostrarJustificadas == true"
+            >Justificadas</span
+          >
+          <span
+            class="badge badge-secondary boton"
+            v-on:click="cambiarMostrarNoJusticadas(true)"
+            v-show="mostrarNoJustificadas == false"
+            >No justificadas</span
+          >
+          <span
+            class="badge badge-danger boton"
+            v-on:click="cambiarMostrarNoJusticadas(false)"
+            v-show="mostrarNoJustificadas == true"
+            >No justificadas</span
+          >
+        </div>
+
+        <h3>
+          {{ datosAlumnoSeleccionado.nombre }} {{
+          datosAlumnoSeleccionado.apellido1 }} {{
+          datosAlumnoSeleccionado.apellido2 }} ({{grupoSeleccionado}})
+          <span id="zona-edad-alumno" class="no-impresion"
+            >Fecha de nacimiento: {{ datosAlumnoSeleccionado.fechaRealNacimiento
+            }} ({{ datosAlumnoSeleccionado.edad }} años)</span
+          >
+        </h3>
+
+        <div id="zona-derecha">
+          <div class="foto">
+            <img
+              v-bind:src="obtenerEnlaceFoto(datosAlumnoSeleccionado.matricula)"
+            />
+          </div>
+        </div>
+
+        <div v-if="hayFaltas">
+          <p>
+            Se relaciona a continuación el historial de las faltas de asistencia
+            del alumno {{ datosAlumnoSeleccionado.nombre }} {{
+            datosAlumnoSeleccionado.apellido1 }} {{
+            datosAlumnoSeleccionado.apellido2 }} del grupo {{grupoSeleccionado}}
+            durante el presente curso escolar
+            <span v-show="materiaSeleccionada.length > 0"
+              >en la materia {{materiaSeleccionada}}</span
+            >:
+          </p>
+
+          <ul id="listado-faltas" v-if="tipoVisualizacion == 'porFecha'">
+            <li
+              v-for="(arrayFaltas, fecha) in faltasFiltradasPorFecha"
+              class="zona-fecha-dia"
+            >
+              {{ fecha }}:
+              <ul>
+                <li v-for="falta in arrayFaltas">
+                  <span
+                    class="badge badge-success boton"
+                    v-if="falta.justificadas == 1"
+                    >Justificada</span
+                  >
+                  <span
+                    class="badge badge-danger boton"
+                    v-if="falta.justificadas != 1"
+                    >No justificada</span
+                  >
+                  Sesión {{ falta.sesion }} ({{ falta.materia }})
+                </li>
+              </ul>
+            </li>
+          </ul>
+
+          <ul id="listado-faltas" v-if="tipoVisualizacion == 'porMateria'">
+            <li
+              v-for="(arrayFaltas, materia) in faltasFiltradasPorMateria"
+              class="zona-fecha-dia"
+            >
+              {{ materia }} ({{arrayFaltas.length}}):
+              <ul>
+                <li v-for="falta in arrayFaltas">
+                  <span
+                    class="badge badge-success"
+                    v-if="falta.justificadas == 1"
+                    >Justificada</span
+                  >
+                  <span
+                    class="badge badge-danger"
+                    v-if="falta.justificadas != 1"
+                    >No justificada</span
+                  >
+                  {{ falta.fecha }} (sesión {{ falta.sesion }})
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+
+        <div v-if="!hayFaltas">
+          <p>
+            No tenemos constancia de ninguna falta de asistencia del alumno {{
+            datosAlumnoSeleccionado.nombre }} {{
+            datosAlumnoSeleccionado.apellido1 }} {{
+            datosAlumnoSeleccionado.apellido2 }} del grupo
+            {{grupoSeleccionado}}<span v-show="materiaSeleccionada.length > 0">
+              en la materia {{materiaSeleccionada}}
+            </span>
+            durante el presente curso escolar.
+          </p>
+        </div>
+
+        <div id="zona-firma">
+          <p>En Villabalter, a {{diaDeHoy}}.</p>
+          <p>
+            Fdo. {{usuarioAutenticado.nombre}} {{usuarioAutenticado.apellidos}}
+          </p>
+        </div>
+      </div>
+
+      <div id="mensajes-proceso" v-html="mensajesProceso" v-if="false"></div>
+    </div>
+    <!-- /container -->
+
+    <!-------------------- SCRIPTS ------------------>
+
+    <!-- Vuejs -->
+    <script src=" https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.4/vue.js "></script>
+
+    <script src="ies-asistencia-tutores-informe.js "></script>
+  </body>
+</html>
