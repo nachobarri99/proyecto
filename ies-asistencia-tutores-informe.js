@@ -47,6 +47,7 @@ new Vue({
     datosAlumnoSeleccionado: null,
     datosHorarioGrupoSeleccionado: [],
     datosMateriasAlumnoSeleccionado: [],
+    numeroDeFaltasDelAlumnoSeleccionado: null,
 
     listadoAlumnos: [],
     todosLosAlumnos: [],
@@ -521,6 +522,7 @@ new Vue({
             vueApp.alumnoSeleccionado +
             " recibidas<br>";
           vueApp.listadoFaltasAlumnosSeleccionado = [];
+          
           querySnapshot.forEach(function(doc) {
             vueApp.documentosRecibidosAsistenciaV2++;
             var elemento = {};
@@ -547,7 +549,8 @@ new Vue({
             ).format("dddd, D [de] MMMM [de] YYYY");
             vueApp.listadoFaltasAlumnosSeleccionado.push(elemento);
           });
-          console.log(vueApp.listadoFaltasAlumnosSeleccionado);
+          console.log("Numero de faltas" , vueApp.listadoFaltasAlumnosSeleccionado.length);
+          vueApp.numeroDeFaltasDelAlumnoSeleccionado = vueApp.listadoFaltasAlumnosSeleccionado.length;
           vueApp.faltasDelAlumnoCargadas = true;
           vueApp.recalcularFaltas();
         })

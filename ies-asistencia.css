@@ -39,6 +39,10 @@ p {
   margin-top: 1rem;
 }
 
+#boton-oculto{
+
+}
+
 
 .g-signin2 {
   margin: 0 0 1rem 3rem;
@@ -108,8 +112,6 @@ h5 {
 .zona-nombre-alumno {
   padding: 0rem 0.5rem 0.5rem 0.5rem;
 }
-
-.zona-botones-alumno {}
 
 .zona-botones-alumno button {
   text-align: center;

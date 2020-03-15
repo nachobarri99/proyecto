@@ -104,7 +104,9 @@ window.vueApp = new Vue({
 
     alumnosDelGrupoEnPantalla: [],
     numeroGruposPendienteDeCarga: 0,
-
+    arrayMatriculaSesion : [],
+   arrayTemporalOcultos:[],
+   contadorDesocultar : 0,
     arrayTemporalAlumnosParaCargarDatos: [],
     cargadosTodosLosDatosDeLosAlumnosEnPantalla: false,
 
@@ -114,6 +116,9 @@ window.vueApp = new Vue({
 
     turnoDeManana: false,
     turnoDeTarde: false,
+
+    botonDesocultar: false,
+    hayOcultos : false
 
   },
 
@@ -321,23 +326,125 @@ window.vueApp = new Vue({
 
     },
 
+   
+
+    cargarTutorias(sesion){
+      var grupoSeleccionado = this.obtenerGrupos(vueApp.diaSeleccionado, sesion);
+      vueApp.numeroGruposPendienteDeCarga = grupoSeleccionado.length;
+      var busqueda = grupoSeleccionado[0];
+      var arraySinDuplicados = [];
+      var nuevoArray = [];
+      var arrayMatriculas = [];
+      console.log("Cargando alumnos de" + busqueda);
+      console.log("Materia seleccionada");
+
+      vueApp.dbTablasComunes.collection("alu-gru").where("grupo", "==", busqueda)
+        .get()
+        .then(function(querySnapshot) {
+          var arrayAPasar = [];
+            querySnapshot.forEach(function(doc) {
+                console.log("Obtenemos los datos de los alumnos del grupo");
+                var alumnoActual = doc.data();
+  
+                if (alumnoActual.profesor == vueApp.usuarioAutenticado.id || alumnoActual.profesor == "" ) {
+                  alumnoActual.nombre = vueApp.sinAcentos(alumnoActual.nombre);
+                  alumnoActual.apellidos = vueApp.sinAcentos(alumnoActual.apellidos);
+                  alumnoActual.eseAlumnoFalto = false;
+                  alumnoActual.laFaltaDelAlumnoEstaJustificada = false;
+                  alumnoActual.faltaIntroducidaPorElTutor = false;
+                  alumnoActual.ocultandoAlumno = false;
+                  alumnoActual.desocultandoAlumno = false;
+                  alumnoActual.llegoConRetraso = false;
+                  alumnoActual.poniendoFalta = false;
+                  alumnoActual.quitandoFalta = false;
+                  alumnoActual.poniendoFaltaConSMS = false;
+                  alumnoActual.poniendoRetraso = false;
+                  alumnoActual.quitandoRetraso = false;
+                  alumnoActual.convirtiendoRetrasoEnFalta = false;
+                  alumnoActual.convirtiendoFaltaEnRetraso = false;
+                  alumnoActual.oculto = false;
+                  alumnoActual.datos = {};
+                  alumnoActual.datos.edad = null;
+                  alumnoActual.datos.movilMadre = "";
+                  alumnoActual.datos.movilPadre = "";
+                  alumnoActual.padresAvisadosPorSms = false;
+                }
+                  if (window.location.search.includes("debug")) {
+                    console.log(doc.id + ": ");
+                    console.log(alumnoActual);
+                  }
+                    arrayMatriculas.push(alumnoActual)
+                  nuevoArray.push(alumnoActual.matricula);
+                   
+            });    
+            console.log("Obteniendo datos");
+            console.log("Imprimiendo el array de objetos de alumnos", arrayMatriculas);
+          
+          arraySinDuplicados = [...new Set(nuevoArray)];
+          console.log("Obteniendo longitud del array" , arraySinDuplicados.length);
+          console.log(arraySinDuplicados);
+        
+          for(var i = 0; i < arraySinDuplicados.length;i++){
+            for(var j = 0; j < arrayMatriculas.length;j++){
+              if(arraySinDuplicados[i] === arrayMatriculas[j].matricula){
+                console.log("Comparando " + arraySinDuplicados[i] + " y " +  arrayMatriculas[j].matricula);     
+                console.log("Hay coincidencia pues añado " + arrayMatriculas[j].matricula);
+                arrayAPasar.push(arrayMatriculas[j]);
+                break;
+                
+              }
+            }
+            
+          }
+            
+          console.log(arrayAPasar);
+          
+            
+           
+            vueApp.alumnosDelGrupoEnPantalla = vueApp.alumnosDelGrupoEnPantalla.concat(arrayAPasar);
+            console.log("Alumnos en pantalla" + vueApp.alumnosDelGrupoEnPantalla);
+            vueApp.numeroGruposPendienteDeCarga--;
+
+            if (vueApp.numeroGruposPendienteDeCarga == 0) {
+              vueApp.alumnosDelGrupoEnPantalla.sort(vueApp.compararPorApellido);
+              vueApp.arrayTemporalAlumnosParaCargarDatos = vueApp.alumnosDelGrupoEnPantalla.slice(0);
+
+              vueApp.cargadosTodosLosDatosDeLosAlumnosEnPantalla = false;
+
+              if (vueApp.seCarganLasEdadesDeLosAlumnos) {
+                vueApp.cargarDatosAlumnosRecursivamente();
+              }
+              
+
+              vueApp.solicitarFaltasDelGrupoSeleccionado();
+            }
+          });
+      
+        },
 
     seleccionarSesion(sesion) {
       vueApp.cargandoAlumnoSesionSeleccionada = true;
       vueApp.sesionSeleccionada = sesion;
-      vueApp.alumnosDelGrupoEnPantalla = [];
-
+      vueApp.alumnosDelGrupoEnPantalla = [];    
       vueApp.gruposSeleccionados = this.obtenerGrupos(vueApp.diaSeleccionado, sesion);
       vueApp.materiaSeleccionada = this.obtenerMateria(vueApp.diaSeleccionado, sesion);
-
+      vueApp.verSiEnLaSesionHayAlumnosOcultos(vueApp.sesionSeleccionada,vueApp.materiaSeleccionada);
       vueApp.numeroGruposPendienteDeCarga = vueApp.gruposSeleccionados.length;
 
-      console.log("Cargando los alumnos de los grupos " + vueApp.gruposSeleccionados);
+      console.log(vueApp.materiaSeleccionada);
 
+      if(vueApp.materiaSeleccionada === "TUT"){
+        this.cargarTutorias(sesion);
+
+      }
+      
+      else{
+
+        console.log("Cargando los alumnos de los grupos " + vueApp.gruposSeleccionados);
       vueApp.gruposSeleccionados.forEach(function (elemento) {
         var procesoActual = "cargar las sesiones del dia seleccionado";
         console.log("Iniciando el proceso de " + procesoActual);
-
+        
 
         vueApp.dbTablasComunes.collection("alu-gru").where("grupo", "==", elemento).where("materia", "==", vueApp.materiaSeleccionada).get()
           .then(function (querySnapshot) {
@@ -347,15 +454,17 @@ window.vueApp = new Vue({
             console.log("Recibidos los datos necesarios para " + procesoActual);
             querySnapshot.forEach(function (doc) {
 
-              var alumnoActual = doc.data();
+           var alumnoActual = doc.data();
 
               //Solo mostramos el alumno si es alumno del profesor actual o si no tiene definido profesor
-              if (alumnoActual.profesor == vueApp.usuarioAutenticado.id || alumnoActual.profesor == "") {
+              if (alumnoActual.profesor == vueApp.usuarioAutenticado.id || alumnoActual.profesor == "" ) {
                 alumnoActual.nombre = vueApp.sinAcentos(alumnoActual.nombre);
                 alumnoActual.apellidos = vueApp.sinAcentos(alumnoActual.apellidos);
                 alumnoActual.eseAlumnoFalto = false;
                 alumnoActual.laFaltaDelAlumnoEstaJustificada = false;
                 alumnoActual.faltaIntroducidaPorElTutor = false;
+                alumnoActual.ocultandoAlumno = false;
+                alumnoActual.desocultandoAlumno = false;
                 alumnoActual.llegoConRetraso = false;
                 alumnoActual.poniendoFalta = false;
                 alumnoActual.quitandoFalta = false;
@@ -364,6 +473,7 @@ window.vueApp = new Vue({
                 alumnoActual.quitandoRetraso = false;
                 alumnoActual.convirtiendoRetrasoEnFalta = false;
                 alumnoActual.convirtiendoFaltaEnRetraso = false;
+                alumnoActual.oculto = false;
                 alumnoActual.datos = {};
                 alumnoActual.datos.edad = null;
                 alumnoActual.datos.movilMadre = "";
@@ -392,6 +502,7 @@ window.vueApp = new Vue({
               vueApp.cargadosTodosLosDatosDeLosAlumnosEnPantalla = false;
 
               if (vueApp.seCarganLasEdadesDeLosAlumnos) {
+               
                 vueApp.cargarDatosAlumnosRecursivamente();
               }
               
@@ -404,7 +515,7 @@ window.vueApp = new Vue({
             console.log("Error: se produjo un error al " + procesoActual, error);
           });
       })
-
+    }
 
     },
 
@@ -513,6 +624,102 @@ window.vueApp = new Vue({
           console.log("Error recuperando faltas preexistentes: ", error);
         });
     },
+
+  
+    ocultarAlumno(alumno){
+      var anoSelec = vueApp.fechaSeleccionada.substring(0, 4);
+      var mesSelec = vueApp.fechaSeleccionada.substring(5, 7);
+      var diaSelec = vueApp.fechaSeleccionada.substring(8, 10);
+    
+      
+      var objetoAlumnoOculto = {};
+      objetoAlumnoOculto.ano = Number(anoSelec);
+      objetoAlumnoOculto.mes = Number(mesSelec);
+      objetoAlumnoOculto.dia = Number(diaSelec);
+      objetoAlumnoOculto.matricula = alumno.matricula;
+      objetoAlumnoOculto.sesion = vueApp.sesionSeleccionada;
+      objetoAlumnoOculto.materia = vueApp.materiaSeleccionada;
+      var idAlumnoOculto = "M" + alumno.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" + vueApp.sesionSeleccionada + " -M " + vueApp.materiaSeleccionada;
+      vueApp.dbTablasComunes.collection("ocultos").doc(idAlumnoOculto).set(objetoAlumnoOculto).then(function(){
+        console.log("Alumno grabada correctamente en la coleccion 'ocultos' con id de documento " + idAlumnoOculto);
+        alumno.oculto = true;
+        console.log("Alumno" + alumno.matricula + alumno.nombre +alumno.apellidos + "ocultos");
+        vueApp.hayOcultos = true;
+      });
+    },
+
+    verSiEnLaSesionHayAlumnosOcultos(sesion,materia){
+      var anoSelec = vueApp.fechaSeleccionada.substring(0, 4);
+      var mesSelec = vueApp.fechaSeleccionada.substring(5, 7);
+      var diaSelec = vueApp.fechaSeleccionada.substring(8, 10);
+      var materia = vueApp.materiaSeleccionada;
+      var sesion = vueApp.sesionSeleccionada;
+      var aDevolver = false;
+      vueApp.hayOcultos = false;
+      vueApp.arrayMatriculaSesion = [];
+      vueApp.dbTablasComunes.collection("ocultos")
+      .where("ano", "==", Number(anoSelec))
+      .where("mes", "==", Number(mesSelec))
+      .where("dia", "==", Number(diaSelec))
+      .where("materia", "==", materia)
+      .where("sesion", "==", sesion)
+      .get().then(function(datosRecibidos){
+        datosRecibidos.forEach(function (doc) {
+          var elementoOculto = doc.data();
+          console.log(vueApp.hayOcultos);
+          vueApp.arrayMatriculaSesion.push(elementoOculto.matricula);
+        });
+      
+      
+        console.log("Alumnos ocultos en el grupo " + vueApp.arrayMatriculaSesion);
+        if(vueApp.arrayMatriculaSesion.length>0){
+          vueApp.hayOcultos = true;
+          
+        }
+        
+        
+        
+      });
+      
+      
+    },
+
+    desocultarAlumnos(){
+      var anoSelec = vueApp.fechaSeleccionada.substring(0, 4);
+      var mesSelec = vueApp.fechaSeleccionada.substring(5, 7);
+      var diaSelec = vueApp.fechaSeleccionada.substring(8, 10);
+
+      
+     
+
+        
+      if(vueApp.contadorDesocultar < vueApp.alumnosDelGrupoEnPantalla.length){
+              var idAlumnoOculto = "M" + vueApp.alumnosDelGrupoEnPantalla[vueApp.contadorDesocultar].matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" + vueApp.sesionSeleccionada + " -M " + vueApp.materiaSeleccionada;
+              vueApp.dbTablasComunes.collection("ocultos").doc(idAlumnoOculto).delete().then(function() {
+        
+                vueApp.alumnosDelGrupoEnPantalla[vueApp.contadorDesocultar].oculto = false;
+                vueApp.hayOcultos = false;
+                vueApp.contadorDesocultar++;
+                vueApp.desocultarAlumnos();
+            }).catch(function(error) {
+              vueApp.contadorDesocultar++;
+                vueApp.desocultarAlumnos();
+                console.error("Error removing document: ", error);
+            });
+          }    
+          else{
+            console.log("Desocultados");
+            vueApp.contadorDesocultar = 0;
+          }
+      
+        
+          
+        
+      
+      
+    },
+
+
 
 
     obtenerClaseCssAlumno(alumno) {
@@ -800,15 +1007,42 @@ window.vueApp = new Vue({
         });
     },
 
+    verSiHayAlumnoOculto(matricula){
+      console.log("Vamos a ocultar a los alumnos que estaban oculto de antes");
+     
+      for(var x = 0; x < vueApp.arrayMatriculaSesion.length;x++){
+        if(vueApp.arrayMatriculaSesion[x] === matricula){
+          console.log("Alumno oculto con , matricula" , vueApp.arrayMatriculaSesion[x]);
+          for(var i = 0; i < vueApp.alumnosDelGrupoEnPantalla.length;i++){
+            if(vueApp.alumnosDelGrupoEnPantalla[i].matricula === vueApp.arrayMatriculaSesion[x]){
+              console.log("Vamos a ocultar a " + vueApp.alumnosDelGrupoEnPantalla[i].nombre + vueApp.alumnosDelGrupoEnPantalla[i].apellidos);
+              vueApp.alumnosDelGrupoEnPantalla[i].oculto = true;
+              break;
+            }
+          }
+          break;
+        }
+      }
+        
+      
+    },
+
 
     cargarDatosAlumnosRecursivamente() {
-
+    
       console.log("Quedan por cargar los datos de " + vueApp.arrayTemporalAlumnosParaCargarDatos.length + " alumnos!");
 
+      
+    
+      
       if (vueApp.arrayTemporalAlumnosParaCargarDatos.length > 0) {
 
         var alumnoActual = vueApp.arrayTemporalAlumnosParaCargarDatos.shift();
 
+        if(vueApp.arrayMatriculaSesion.length > 0){
+          console.log("Procedemos a ver si estan ocultos");
+              vueApp.verSiHayAlumnoOculto(alumnoActual.matricula);
+        }
         var procesoActual = "cargar los datos del alumno seleccionado";
         console.log("Iniciando el proceso de " + procesoActual);
 
@@ -821,6 +1055,7 @@ window.vueApp = new Vue({
             var elementoDatosAlumno = doc.data();
             var elementoAlumno = vueApp.obtenerAlumnoEnPantallaPorMatricula(alumnoActual.matricula);
 
+            console.log(elementoAlumno);
             elementoAlumno.datos = elementoDatosAlumno;
             elementoAlumno.datos.fechaRealNacimiento = moment(elementoDatosAlumno.fechaNacimiento).format("DD/MM/YYYY");
             elementoAlumno.datos.edad = moment().diff(elementoAlumno.datos.fechaNacimiento, 'years');
@@ -834,7 +1069,9 @@ window.vueApp = new Vue({
             }
 
             console.log("Cargados datos personales de un alumno");
+            
             vueApp.cargarDatosAlumnosRecursivamente();
+            
           });
         }).catch(function (error) {
           console.log("Error: se produjo un error al " + procesoActual, error);
@@ -846,7 +1083,13 @@ window.vueApp = new Vue({
         vueApp.cargadosTodosLosDatosDeLosAlumnosEnPantalla = true;
         console.log("Se han terminado de cargar todos los datos personales de los alumnos!!")
         vueApp.$forceUpdate();
-      }
+        
+
+        
+
+        }
+        console.log(vueApp.alumnosDelGrupoEnPantalla);
+      
 
     },
 

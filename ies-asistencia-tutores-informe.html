@@ -231,6 +231,18 @@
         </div>
 
         <div v-if="hayFaltas">
+
+          <p>
+            Se redacta a continuación el número de faltas totales de asistencia
+            del alumno {{ datosAlumnoSeleccionado.nombre }} 
+            {{datosAlumnoSeleccionado.apellido1 }} {{datosAlumnoSeleccionado.apellido2 }}
+             del grupo {{grupoSeleccionado}} durante el presente curso escolar.
+          </br>
+             El alumno {{ datosAlumnoSeleccionado.nombre }} 
+             {{datosAlumnoSeleccionado.apellido1 }} {{datosAlumnoSeleccionado.apellido2 }}
+             tiene un total de : {{ numeroDeFaltasDelAlumnoSeleccionado }} faltas durante el presente curso escolar.
+
+          </p>
           <p>
             Se relaciona a continuación el historial de las faltas de asistencia
             del alumno {{ datosAlumnoSeleccionado.nombre }} {{

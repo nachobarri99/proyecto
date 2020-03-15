@@ -284,6 +284,7 @@ new Vue({
         "Cargando los alumnos existentes en el Centro...<br>";
 
       var referencia = this.dbTablasComunes.collection("todos-los-alumnos");
+      
       referencia
         .get()
         .then(function(querySnapshot) {

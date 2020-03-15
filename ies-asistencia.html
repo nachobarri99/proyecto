@@ -46,7 +46,7 @@
   <script src="https://www.gstatic.com/firebasejs/4.5.0/firebase.js"></script>
   <script src="https://www.gstatic.com/firebasejs/4.5.0/firebase-firestore.js"></script>
 
-
+  
 </head>
 
 <body>
@@ -102,9 +102,27 @@
 
       <div id="zona-alumnos" v-show="cargadasFaltasPreexitentes">
 
+        <div class="zona-desocultar" v-show="hayOcultos">
+          <button role="button" type="button" class="btn btn-outline-info btn-sm "
+              v-on:click="desocultarAlumnos()">       
+              <span>Desocultar Alumnos</span>
+            </button>
+
+
+        </div>
         <div v-for="alumno in alumnosDelGrupoEnPantalla" v-bind:class="obtenerClaseCssAlumno(alumno)">
+          
+          
+
+
+          <div v-show="!alumno.oculto">
+
+
+          
+        
           <div class="col-xs-4 col-md-4 col-lg-2 zona-imagen-alumno">
 
+            
             <img v-bind:src="obtenerEnlaceFoto(alumno.matricula)" class="imagen-real-alumno img-fluid"
               @error="imagenAvatarError">
             <div class="estado-alumno"
@@ -125,13 +143,14 @@
             </div>
             <div class=" zona-botones-alumno ">
 
+              
               <button role="button" type="button" class="btn btn-outline-info btn-sm "
-                v-on:click="ponerRetraso(alumno) " :disabled="alumno.poniendoRetraso"
-                v-show="!alumno.eseAlumnoFalto  && !alumno.llegoConRetraso && !alumno.convirtiendoFaltaEnRetraso && !alumno.poniendoFalta"
-                :disabled="alumno.poniendoRetraso ">
-                <span v-show="!alumno.poniendoRetraso">Retraso</span>
-                <span v-show="alumno.poniendoRetraso">Poniendo retraso...</span>
-              </button>
+              v-on:click="ponerRetraso(alumno) " :disabled="alumno.poniendoRetraso"
+              v-show="!alumno.eseAlumnoFalto  && !alumno.llegoConRetraso && !alumno.convirtiendoFaltaEnRetraso && !alumno.poniendoFalta"
+              :disabled="alumno.poniendoRetraso ">
+              <span v-show="!alumno.poniendoRetraso">Retraso</span>
+              <span v-show="alumno.poniendoRetraso">Poniendo retraso...</span>
+            </button>
 
               <button role="button" type="button" class="btn btn-outline-secondary btn-sm "
                 v-show="alumno.llegoConRetraso && !alumno.convirtiendoRetrasoEnFalta"
@@ -184,10 +203,17 @@
               <span class="aviso-por-sms" v-show="alumno.eseAlumnoFalto && alumno.padresAvisadosPorSms">Padres avisados
                 por SMS</span>
 
+                <button role="button" type="button" class="btn btn-outline-info btn-sm"
+                v-on:click="ocultarAlumno(alumno)"
+                >       
+                <span>Ocultar</span>
+              </button>
+
             </div>
           </div>
-        </div>
-
+       
+      </div>
+    </div>
       </div>
 
 
