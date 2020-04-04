@@ -98,6 +98,24 @@
       </div>
 
       <div v-if="listadoGrupos.length > 0" class="no-impresion">
+         
+        <div v-if="grupoSeleccionado !== null " class="no-impresion" id="botones-grupo">
+          <button 
+          type="button"
+            class="no-impresion boton-impresion btn btn-outline-secondary"
+            onClick="vueApp.cargarFaltasDelGrupoSeleccionado()"
+            
+          >
+            Calcular Faltas {{grupoSeleccionado}}
+           
+            <button v-if="cargadoFaltasGrupo"
+            type="button" 
+            class="no-impresion boton-impresion btn btn-outline-secondary"
+            onClick="window.print()"> Imprimir Faltas {{grupoSeleccionado}}
+            </button
+              >
+          
+        </div>
         Selecciona un grupo:
         <select class="form-control" v-model="grupoSeleccionado">
           <option disabled value="">Grupo</option>
@@ -105,7 +123,10 @@
             {{ grupo }}
           </option>
         </select>
+       
       </div>
+
+      
 
       <div v-if="listadoAlumnos.length > 0" class="no-impresion">
         Selecciona un alumno:
@@ -119,6 +140,8 @@
           </option>
         </select>
       </div>
+      
+      
 
       <div v-if="listadoAlumnos.length > 0" class="no-impresion">
         Selecciona una materia:
@@ -133,10 +156,82 @@
         </select>
       </div>
 
-      <div v-if="!faltasDelAlumnoCargadas && alumnoSeleccionado != null">
-        Cargando faltas...
-      </div>
+      
+        
+      
+        <div id="zona-logo">
+          <img
+            src="https://raw.githubusercontent.com/miguelbayon/imagenes-publicas/master/logo.png"
+          />
+          <p>
+            Instituto de Educación Secundaria Obligatoria (ESO), Bachillerato y
+            Ciclos Formativos
+          </p>
+          <p>
+            Avda. del Romeral 125, 24191, Villabalter, León (España) - Tlf:
+            987846315 - Email: 24016481@educa.jcyl.es
+          </p>
+        </div>
+        <div v-if="cargadoFaltasGrupo && !cargandoTabla && !faltasDelAlumnoCargadas && grupoSeleccionado != null  && numeroFaltasPorMateria.length > 0" >
+          
+        <p>
+          Se relaciona a continuación el historial de las faltas de asistencia
+          de los  alumnos del grupo {{grupoSeleccionado}}
+          durante el presente curso escolar:
+        </p>
 
+        <div  class="faltas-alumno" v-for="alumno in numeroFaltasPorMateria">
+        
+          <div class="tabla">
+              <div v-for="nombreAlumno in alumno">
+
+               
+                <span>{{nombreAlumno.nombre}}</span>
+              
+                  
+                    <table v-if="nombreAlumno.length > 0"> 
+                      <div>
+                      <tr>
+                        
+                        <th>Materias Cursadas</th>
+                    
+                        <th>Faltas de Asistencia</th>
+                    
+                    
+                      </tr>
+                    
+                    
+                      <tr v-for="datos in nombreAlumno">
+                          <td>
+                            {{datos.materia}}
+                          </td>
+                          <td>
+                            {{datos.faltas}}
+                          </td>
+                        
+                        
+                      </tr>
+                    </div>
+                    
+                    </table>
+
+                  
+              </div>
+
+
+                 
+              
+           </div>
+         
+          
+        
+      </div>
+    </div>
+
+  
+      <div v-if="cargandoTabla">
+        <p>Cargando las faltas de los alumnos del {{grupoSeleccionado}} .....</p>
+      </div>
       <div v-if="faltasDelAlumnoCargadas">
         <button
           type="button"

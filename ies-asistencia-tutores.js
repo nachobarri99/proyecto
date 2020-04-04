@@ -55,6 +55,7 @@ new Vue({
 
     listadoAlumnos: [],
     todosLosAlumnos: [],
+    listadoOrdenado:[],
     listadoFaltasAlumnosSeleccionado: [],
     faltasDelAlumnoCargadas: false,
 
@@ -84,6 +85,20 @@ new Vue({
       var t = this;
       return t.dateContext.format("MMMM");
     },
+    /*
+    ordenar: function() {
+      function compare(a, b) {
+        if (a.nombreCompleto < b.nombreCompleto)
+          return -1;
+        if (a.nombreCompleto > b.nombreCompleto)
+          return 1;
+        return 0;
+      }
+
+      return this.listadoAlumnos.sort(compare);
+    },
+    */
+
     anoCalendario: function() {
       return this.dateContext.year();
     },
@@ -461,15 +476,16 @@ new Vue({
             elemento.nombreCompleto =
               alumnoActual.nombreCompleto + " - " + elemento.matricula;
             vueApp.listadoAlumnos.push(elemento);
+            
           });
-          vueApp.listadoAlumnos = _.sortBy(vueApp.listadoAlumnos, [
-            "nombreCompleto"
-          ]);
+          vueApp.listadoAlumnos.sort((unAlumno, otroAlumno) => unAlumno.nombreCompleto - otroAlumno.nombreCompleto);
         })
         .catch(function(error) {
           console.log("Error obteniendo los alumnos:", error);
         });
     },
+
+  
 
     cargarFaltasAlumno() {
       vueApp.listadoFaltasAlumnosSeleccionado = [];

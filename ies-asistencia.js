@@ -836,11 +836,7 @@ window.vueApp = new Vue({
 
       console.log("Sobreescribiendo la falta con ID " + idDocASobreescribir);
 
-      var documentoASobreescribir = vueApp.dbSecundaria.collection("faltas").doc(idDocASobreescribir);
-
-      documentoASobreescribir.update({
-          "faltas": 0
-        })
+      var documentoASobreescribir = vueApp.dbSecundaria.collection("faltas").doc(idDocASobreescribir).delete()
         .then(function () {
           console.log("Falta eliminada!");
 
