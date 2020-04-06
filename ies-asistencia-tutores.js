@@ -249,14 +249,26 @@ new Vue({
         apellidos: "YYY"
       };
 
-      vueApp.usuarioAutenticado = usuarioAutenticado;
+      console.log("A ver",window.location.search.split("usuario=")[1]);
+      var referencia = this.dbTablasComunes.collection("emails-a-ids-profesores");
+      referencia.where("id","==",window.location.search.split("usuario=")[1]).get()
+      .then(function(querySnapshot){
+        querySnapshot.forEach(function(doc){
+          var data = doc.data();
+          usuarioAutenticado.nombre = data.nombre;
+          usuarioAutenticado.apellidos = data.apellidos;
+          
+        })
+        vueApp.usuarioAutenticado = usuarioAutenticado;
       vueApp.nombreDeUsuario =
         "Hola de nuevo, " +
-        vueApp.usuarioAutenticado.nombre +
+        vueApp.usuarioAutenticado.nombre + " " +
+        vueApp.usuarioAutenticado.apellidos +
         " (" +
         vueApp.usuarioAutenticado.id +
         ")!";
       vueApp.cargaLoNecesarioAntesDeEmpezar();
+          });
     },
 
     cargaLoNecesarioAntesDeEmpezar() {
