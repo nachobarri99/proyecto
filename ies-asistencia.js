@@ -252,6 +252,7 @@ window.vueApp = new Vue({
 
 
     aumentarFecha() {
+      vueApp.hayOcultos = false;
       console.log("Haciendo avanzar la fecha");
       if (moment(vueApp.fechaSeleccionada, "YYYY-MM-DD").weekday() != 4) {
         vueApp.fechaSeleccionada = moment(vueApp.fechaSeleccionada, "YYYY-MM-DD").add(1, 'd').format("YYYY-MM-DD");
@@ -263,6 +264,7 @@ window.vueApp = new Vue({
 
 
     reducirFecha() {
+      vueApp.hayOcultos = false;
       console.log("Retrocediendo la fecha");
       if (moment(vueApp.fechaSeleccionada, "YYYY-MM-DD").weekday() != 0) {
         vueApp.fechaSeleccionada = moment(vueApp.fechaSeleccionada, "YYYY-MM-DD").subtract(1, 'd').format("YYYY-MM-DD");
@@ -340,18 +342,25 @@ window.vueApp = new Vue({
 
     },
 
-   
+   /*
+    Método en el cual cargamos la tutoria del grupo seleccionado
+   */
 
     cargarTutorias(sesion){
       var grupoSeleccionado = this.obtenerGrupos(vueApp.diaSeleccionado, sesion);
       vueApp.numeroGruposPendienteDeCarga = grupoSeleccionado.length;
-      var busqueda = grupoSeleccionado[0];
+      
+      var busqueda = grupoSeleccionado[0]; //Cogemos la primera posicion ya que un tutor , solo tiene una tutoria
       var arraySinDuplicados = [];
       var nuevoArray = [];
       var arrayMatriculas = [];
       console.log("Cargando alumnos de" + busqueda);
-      console.log("Materia seleccionada");
+      
 
+      /*Comenzamos a realizar la busqueda de los alumnos de la tutoria del grupo seleccionado
+      En esta busqueda nos va a imprimir cada alumno, con todas sus materias, luego se realizara
+      el filtrado, para que no haya repetidos
+      */
       vueApp.dbTablasComunes.collection("alu-gru").where("grupo", "==", busqueda)
         .get()
         .then(function(querySnapshot) {
@@ -360,6 +369,7 @@ window.vueApp = new Vue({
                 console.log("Obtenemos los datos de los alumnos del grupo");
                 var alumnoActual = doc.data();
   
+                //Inicializamos los atributos de los alumnos que vamos cargando
                 if (alumnoActual.profesor == vueApp.usuarioAutenticado.id || alumnoActual.profesor == "" ) {
                   alumnoActual.nombre = vueApp.sinAcentos(alumnoActual.nombre);
                   alumnoActual.apellidos = vueApp.sinAcentos(alumnoActual.apellidos);
@@ -393,15 +403,20 @@ window.vueApp = new Vue({
             });    
             console.log("Obteniendo datos");
             console.log("Imprimiendo el array de objetos de alumnos", arrayMatriculas);
-          
+            
+          // el objeto set nos permite eleminar elementos duplicados del array
           arraySinDuplicados = [...new Set(nuevoArray)];
           console.log("Obteniendo longitud del array" , arraySinDuplicados.length);
           console.log(arraySinDuplicados);
         
+          /*
+          Se realiza este bucle para comparar entre matriculas y  filtrar y añadir solo un alumno
+          */
           for(var i = 0; i < arraySinDuplicados.length;i++){
             for(var j = 0; j < arrayMatriculas.length;j++){
+              console.log("Comparando " + arraySinDuplicados[i] + " y " +  arrayMatriculas[j].matricula);
               if(arraySinDuplicados[i] === arrayMatriculas[j].matricula){
-                console.log("Comparando " + arraySinDuplicados[i] + " y " +  arrayMatriculas[j].matricula);     
+                     
                 console.log("Hay coincidencia pues añado " + arrayMatriculas[j].matricula);
                 arrayAPasar.push(arrayMatriculas[j]);
                 break;
@@ -415,7 +430,7 @@ window.vueApp = new Vue({
           
             
            
-            vueApp.alumnosDelGrupoEnPantalla = vueApp.alumnosDelGrupoEnPantalla.concat(arrayAPasar);
+            vueApp.alumnosDelGrupoEnPantalla = vueApp.alumnosDelGrupoEnPantalla.concat(arrayMatriculas);
             console.log("Alumnos en pantalla" + vueApp.alumnosDelGrupoEnPantalla);
             vueApp.numeroGruposPendienteDeCarga--;
 
@@ -447,9 +462,9 @@ window.vueApp = new Vue({
 
       console.log(vueApp.materiaSeleccionada);
 
+      //Si la materia seleccionado es tut entonces comenzamos a cargar la tutoria
       if(vueApp.materiaSeleccionada === "TUT"){
         this.cargarTutorias(sesion);
-
       }
       
       else{
@@ -640,6 +655,10 @@ window.vueApp = new Vue({
     },
 
   
+    /*
+      Método en el cual le pasamos el alumno que queremos ocultar y lo añadimos en nuestra
+      coleccion de la bd
+    */
     ocultarAlumno(alumno){
       var anoSelec = vueApp.fechaSeleccionada.substring(0, 4);
       var mesSelec = vueApp.fechaSeleccionada.substring(5, 7);
@@ -662,13 +681,15 @@ window.vueApp = new Vue({
       });
     },
 
+    /*
+    Metodo con el cual, buscamos en la bd si en la sesion seleccionada hay alumnos ocultos
+    */
     verSiEnLaSesionHayAlumnosOcultos(sesion,materia){
       var anoSelec = vueApp.fechaSeleccionada.substring(0, 4);
       var mesSelec = vueApp.fechaSeleccionada.substring(5, 7);
       var diaSelec = vueApp.fechaSeleccionada.substring(8, 10);
       var materia = vueApp.materiaSeleccionada;
       var sesion = vueApp.sesionSeleccionada;
-      var aDevolver = false;
       vueApp.hayOcultos = false;
       vueApp.arrayMatriculaSesion = [];
       vueApp.dbTablasComunes.collection("ocultos")
@@ -706,7 +727,7 @@ window.vueApp = new Vue({
       
      
 
-        
+      //Vamos recorriendo los alumnos de la sesion y eliminando de la bd los que estan ocultos.
       if(vueApp.contadorDesocultar < vueApp.alumnosDelGrupoEnPantalla.length){
               var idAlumnoOculto = "M" + vueApp.alumnosDelGrupoEnPantalla[vueApp.contadorDesocultar].matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" + vueApp.sesionSeleccionada + " -M " + vueApp.materiaSeleccionada;
               vueApp.dbTablasComunes.collection("ocultos").doc(idAlumnoOculto).delete().then(function() {
@@ -787,6 +808,7 @@ window.vueApp = new Vue({
       var time = ((today.getHours() < 10 ? '0' : '') + today.getHours()) + ":" + ((today.getMinutes() < 10 ? '0' : '') + today.getMinutes()) + ":" + ((today.getSeconds() < 10 ? '0' : '') + today.getSeconds());
       var dateTime = date + ' ' + time;
 
+    
       // Se modifica el documento (o se crea si ya existiera) tanto en la base de datos como en local...
       var objetoFalta = {};
       objetoFalta.ano = Number(anoSelec);
@@ -796,9 +818,10 @@ window.vueApp = new Vue({
       objetoFalta.matricula = Number(alumno.matricula);
       objetoFalta.profesor = vueApp.usuarioAutenticado.id;
       objetoFalta.sesion = vueApp.sesionSeleccionada;
+      objetoFalta.grupo = vueApp.gruposSeleccionados.toString();
       objetoFalta.faltas = 1;
 
-      var idObjetoFalta = "M" + alumno.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" + vueApp.sesionSeleccionada;
+      var idObjetoFalta = "M" + alumno.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" + vueApp.sesionSeleccionada + "-G" + vueApp.gruposSeleccionados;
 
       vueApp.dbSecundaria.collection("faltas").doc(idObjetoFalta).set(objetoFalta, { merge: true })
         .then(function () {
@@ -893,7 +916,7 @@ window.vueApp = new Vue({
       var dateTime = date + ' ' + time;
 
       // Se actualiza el documento adecuado en la base de datos..
-      var idObjetoFalta = "M" + alumno.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" + vueApp.sesionSeleccionada;
+      var idObjetoFalta = "M" + alumno.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" + vueApp.sesionSeleccionada + "-G" + vueApp.gruposSeleccionados;
 
       var objetoFalta = {};
       objetoFalta.ano = Number(anoSelec);
@@ -903,6 +926,7 @@ window.vueApp = new Vue({
       objetoFalta.matricula = Number(alumno.matricula);
       objetoFalta.profesor = vueApp.usuarioAutenticado.id;
       objetoFalta.sesion = vueApp.sesionSeleccionada;
+      objetoFalta.grupo = vueApp.gruposSeleccionados.toString();
       objetoFalta.retraso = 1;
 
       vueApp.dbSecundaria.collection("faltas").doc(idObjetoFalta).set(objetoFalta, { merge: true })
@@ -939,7 +963,7 @@ window.vueApp = new Vue({
       var dateTime = date + ' ' + time;
 
       // Se actualiza el documento adecuado en la base de datos..
-      var idObjetoFalta = "M" + alumno.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" + vueApp.sesionSeleccionada;
+      var idObjetoFalta = "M" + alumno.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" + vueApp.sesionSeleccionada + "-G" + vueApp.gruposSeleccionados;
 
       var objetoFalta = {};
       objetoFalta.retraso = 0;
@@ -968,7 +992,7 @@ window.vueApp = new Vue({
       var diaSelec = vueApp.fechaSeleccionada.substring(8, 10);
 
       // Se actualiza el documento adecuado en la base de datos..
-      var idObjetoFalta = "M" + alumno.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" + vueApp.sesionSeleccionada;
+      var idObjetoFalta = "M" + alumno.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" + vueApp.sesionSeleccionada + "-G" + vueApp.gruposSeleccionados;
 
       var objetoFalta = {};
       objetoFalta.retraso = 0;
@@ -997,7 +1021,7 @@ window.vueApp = new Vue({
       var diaSelec = vueApp.fechaSeleccionada.substring(8, 10);
 
       // Se actualiza el documento adecuado en la base de datos..
-      var idObjetoFalta = "M" + alumno.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" + vueApp.sesionSeleccionada;
+      var idObjetoFalta = "M" + alumno.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" + vueApp.sesionSeleccionada + "-G" + vueApp.gruposSeleccionados;
 
       var objetoFalta = {};
       objetoFalta.retraso = 1;

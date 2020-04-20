@@ -97,65 +97,65 @@
         <strong>{{ nombreDeUsuario }}</strong>
       </div>
 
-      <div v-if="listadoGrupos.length > 0" class="no-impresion">
+      
          
-        <div v-if="grupoSeleccionado !== null " class="no-impresion" id="botones-grupo">
-          <button 
-          type="button"
-            class="no-impresion boton-impresion btn btn-outline-secondary"
-            onClick="vueApp.cargarFaltasDelGrupoSeleccionado()"
-            
-          >
-            Calcular Faltas {{grupoSeleccionado}}
-           
-            <button v-if="cargadoFaltasGrupo"
-            type="button" 
-            class="no-impresion boton-impresion btn btn-outline-secondary"
-            onClick="window.print()"> Imprimir Faltas {{grupoSeleccionado}}
-            </button
-              >
-          
-        </div>
+      <div id="zona-botones-grupo" v-show="grupoSeleccionado !== null" v-if="ordenado" >
+        <button 
+            type="button"
+              class="no-impresion boton-impresion btn btn-outline-secondary"
+              onClick="vueApp.cargarFaltasDelGrupoSeleccionado()"
+              
+            >
+              Calcular Faltas {{grupoSeleccionado}}
+        </button>  
+  
+        <button :disabled="cargadoFaltasGrupo === false"
+              type="button" 
+              class="no-impresion boton-impresion btn btn-outline-secondary"
+              onClick="window.print()"> Imprimir Faltas {{grupoSeleccionado}}
+        </button >
+        
+      </div>
+       
+
+      <div class="no-impresion">
         Selecciona un grupo:
-        <select class="form-control" v-model="grupoSeleccionado">
-          <option disabled value="">Grupo</option>
+        <select class="form-control" v-model="grupoSeleccionado" v-bind:disabled="cargandoTabla === true">
+          <option v-bind:disabled="cargandoTabla === true" disabled value ="">Grupo</option>
           <option v-for="grupo in listadoGrupos" v-bind:value="grupo">
             {{ grupo }}
           </option>
         </select>
-       
       </div>
-
-      
-
-      <div v-if="listadoAlumnos.length > 0" class="no-impresion">
-        Selecciona un alumno:
-        <select class="form-control" v-model="alumnoSeleccionado">
-          <option disabled value="">Alumno</option>
-          <option
-            v-for="alumno in listadoAlumnos"
-            v-bind:value="alumno.matricula"
-          >
-            {{ alumno.nombreCompleto }}
-          </option>
-        </select>
-      </div>
+    
+        
       
       
-
-      <div v-if="listadoAlumnos.length > 0" class="no-impresion">
-        Selecciona una materia:
-        <select class="form-control" v-model="materiaSeleccionada">
-          <option value="">Todas las materias</option>
-          <option
-            v-for="materia in datosMateriasAlumnoSeleccionado"
-            v-bind:value="materia.materia"
-          >
-            {{ materia.materia }}
-          </option>
-        </select>
-      </div>
-
+        <div v-if="listadoAlumnos.length > 0" class="no-impresion">
+          Selecciona un alumno:
+          <select class="form-control" v-model="alumnoSeleccionado" v-bind:disabled="cargandoTabla === true" >
+            <option disabled value="">Alumno</option>
+            <option
+              v-for="alumno in listadoAlumnos"
+              
+              v-bind:value="alumno.matricula"
+            >
+              {{ alumno.nombreCompleto }}
+            </option>
+          </select>
+        
+          Selecciona una materia:
+          <select class="form-control" v-model="materiaSeleccionada"  v-bind:disabled="cargandoTabla === true">
+            <option value="">Todas las materias</option>
+            <option
+              v-for="materia in datosMateriasAlumnoSeleccionado"
+              v-bind:value="materia.materia"
+            >
+              {{ materia.materia }}
+            </option>
+          </select>
+        </div>
+    
       
         
       
@@ -172,68 +172,37 @@
             987846315 - Email: 24016481@educa.jcyl.es
           </p>
         </div>
-        <div v-if="cargadoFaltasGrupo && !cargandoTabla && !faltasDelAlumnoCargadas && grupoSeleccionado != null  && numeroFaltasPorMateria.length > 0" >
-          
+        <div >
+
+      <div v-if="cargandoTabla">
+        Cargando faltas de asistencia de los alumnos de {{grupoSeleccionado}} ......
+      </div>
+
+      <div v-if="cargadoFaltasGrupo && !cargandoTabla && !faltasDelAlumnoCargadas && grupoSeleccionado != null">
         <p>
           Se relaciona a continuación el historial de las faltas de asistencia
           de los  alumnos del grupo {{grupoSeleccionado}}
           durante el presente curso escolar:
         </p>
 
-        <div  class="faltas-alumno" v-for="alumno in numeroFaltasPorMateria">
         
-          <div class="tabla">
-              <div v-for="nombreAlumno in alumno">
-
-               
-                <span>{{nombreAlumno.nombre}}</span>
-              
-                  
-                    <table v-if="nombreAlumno.length > 0"> 
-                      <div>
-                      <tr>
-                        
-                        <th>Materias Cursadas</th>
-                    
-                        <th>Faltas de Asistencia</th>
-                    
-                    
-                      </tr>
-                    
-                    
-                      <tr v-for="datos in nombreAlumno">
-                          <td>
-                            {{datos.materia}}
-                          </td>
-                          <td>
-                            {{datos.faltas}}
-                          </td>
-                        
-                        
-                      </tr>
-                    </div>
-                    
-                    </table>
-
-                  
-              </div>
-
-
-                 
-              
-           </div>
-         
-          
         
-      </div>
-    </div>
-
-   
-
-  
-      <div v-if="cargandoTabla">
-        <p>Cargando las faltas de los alumnos del {{grupoSeleccionado}} .....</p>
-      </div>
+        
+            <table class="tabla" v-if="materiasGrupo.length > 0">
+              <tr>
+                <th>Nº Expediente</th>
+                <th>Apellidos y Nombre</th>   
+                <th v-for="materia in materiasGrupo">{{materia}}</th>
+                
+              </tr>
+              
+                <tr v-for="arrayAlumno in datosGrupoSeleccionado">
+                  <td v-for="datos in arrayAlumno">{{datos.datosAMostrar}}</td>
+                </tr>
+              
+            </table>
+      </div>   
+            
       <div v-if="faltasDelAlumnoCargadas">
         <button
           type="button"
@@ -399,14 +368,14 @@
             durante el presente curso escolar.
           </p>
         </div>
-
+      </div>
         <div id="zona-firma">
           <p>En Villabalter, a {{diaDeHoy}}.</p>
           <p>
             Fdo. {{usuarioAutenticado.nombre}} {{usuarioAutenticado.apellidos}}
           </p>
         </div>
-      </div>
+      
 
       <div id="mensajes-proceso" v-html="mensajesProceso" v-if="false"></div>
     </div>

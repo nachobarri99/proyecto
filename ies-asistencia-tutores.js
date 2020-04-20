@@ -452,7 +452,6 @@ new Vue({
 
     cargarListadoAlumnosDeUnGrupo() {
       vueApp.listadoAlumnos = [];
-
       console.log(
         "Cargando los alumnos del grupo " + vueApp.grupoSeleccionado + "..."
       );
@@ -486,15 +485,42 @@ new Vue({
             });
             console.log(alumnoActual);
             elemento.nombreCompleto =
-              alumnoActual.nombreCompleto + " - " + elemento.matricula;
+              alumnoActual.nombreCompleto;
             vueApp.listadoAlumnos.push(elemento);
-            
           });
-          vueApp.listadoAlumnos.sort((unAlumno, otroAlumno) => unAlumno.nombreCompleto - otroAlumno.nombreCompleto);
+          
+          console.log("Sin ordenar",vueApp.listadoAlumnos);
+          
+         vueApp.ordenarAlumnos(vueApp.listadoAlumnos);
+         console.log("Ordenado",vueApp.listadoAlumnos);
         })
         .catch(function(error) {
           console.log("Error obteniendo los alumnos:", error);
         });
+    },
+
+    ordenarAlumnos(array){
+      var arrayNombres = []
+      var arrayOrdenado = [];
+
+      for(var i = 0; i < array.length;i++){
+          arrayNombres.push(array[i].nombreCompleto); 
+      }
+      arrayNombres.sort(new Intl.Collator().compare);
+    
+      for(var j = 0; j < arrayNombres.length;j++){
+        var matriculaActual = _.find(vueApp.todosLosAlumnos,{
+          nombreCompleto : arrayNombres[j].toString()
+        });
+        var elemento = {};
+        elemento.matricula = parseInt(matriculaActual.matricula)
+        elemento.nombreCompleto = arrayNombres[j].toString() + " - " + elemento.matricula ;
+        
+        arrayOrdenado.push(elemento);
+      }
+      
+      vueApp.listadoAlumnos = [];
+      vueApp.listadoAlumnos = vueApp.listadoAlumnos.concat(arrayOrdenado);
     },
 
   

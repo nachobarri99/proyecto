@@ -20,17 +20,27 @@ h3 {
   margin-bottom: 0;
 }
 
+#zona-botones-grupo {
+  margin: auto;
+  width: 50%;
+  
+}
+
+
 table {
   margin:auto;
-  width: auto;
-  border: 1px solid #000;
 }
-th, td {
-  width: auto;
+
+th{
+  text-align: center;
+}
+
+td {
+  
   text-align: center;
   vertical-align: top;
   border: 1px solid #000;
-  border-spacing: 0;
+  border-spacing: 1em;
 }
 
 #datos-usuario #nombre-usuario {
@@ -62,9 +72,6 @@ th, td {
   margin-top: 2rem;
 }
 
-#botones-grupo{
-  margin-right: 30rem;
-}
 .zona-alumno {
   margin: 0.5rem 0.5rem 0.5rem 0.5rem;
   padding: 0.6rem;
@@ -80,18 +87,16 @@ th, td {
   border-radius: 0.25rem;
 }
 
-.zona-nombre-alumno {
+.zona-nombre-alumno  {
   padding: 0rem 0.5rem 0.5rem 0.5rem;
 }
 
-.zona-botones-alumno {
+#zona-botones-grupo {
+  margin-right: 25rem;
 }
 
-.zona-botones-alumno button {
-  text-align: center;
-  font-size: 0.7rem;
-  margin-right: 0.2rem;
-}
+
+
 
 @media only screen and (max-width: 580px) {
   .zona-imagen-alumno {
