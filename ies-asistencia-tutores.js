@@ -713,6 +713,7 @@ new Vue({
             objetoFalta.ano = Number(vueApp.anoCalendario);
             objetoFalta.mes = Number(vueApp.mesCalendario);
             objetoFalta.dia = Number(dia.numero);
+            
             objetoFalta.materia = sesion.materia;
             objetoFalta.matricula = Number(
               vueApp.datosAlumnoSeleccionado.matricula
@@ -723,22 +724,16 @@ new Vue({
             objetoFalta.retrasos = 0;
             objetoFalta.justificadas = 0;
             objetoFalta.introducidaDesdeModuloTutores = true;
+            objetoFalta.grupo = vueApp.grupoSeleccionado;
 
             var mesReal =
               objetoFalta.mes < 10 ? "0" + objetoFalta.mes : objetoFalta.mes;
             var diaReal =
               objetoFalta.dia < 10 ? "0" + objetoFalta.dia : objetoFalta.dia;
+
             var idObjetoFalta =
-              "M" +
-              objetoFalta.matricula +
-              "-D" +
-              objetoFalta.ano +
-              "-" +
-              mesReal +
-              "-" +
-              diaReal +
-              "-S" +
-              objetoFalta.sesion;
+            "M" + objetoFalta.matricula + "-D" + objetoFalta.ano + "-" + mesReal
+             + "-" + diaReal+ "-S" + objetoFalta.sesion + "-G" +objetoFalta.grupo;
 
             console.log(objetoFalta);
 
@@ -821,43 +816,11 @@ new Vue({
           } else if (sesion.falta.estado == this.estadosFalta[1]) {
             //Justificada -> Pasa a sin falta
 
-            referencia
-              .update({
-                faltas: 0,
-                justificadas: 0
-              })
-              .then(function() {
-                console.log(
-                  "Falta actualizada correctamente! Ahora ya no hay falta!"
-                );
-                sesion.falta.estado = vueApp.estadosFalta[2];
-                sesion.falta.faltas = 0;
-                sesion.falta.justificadas = 0;
-                sesion.falta.estadoPendienteDeCambio = false;
-                // Se graba un documento de log de la accion
-                var nuevoElementoDeLog = vueApp.dbSecundaria
-                  .collection("log")
-                  .doc();
-                nuevoElementoDeLog.set({
-                  info:
-                    dateTime +
-                    ": el profesor " +
-                    vueApp.usuarioAutenticado.id +
-                    " ha quitado como tutor la falta del alumno con matricula " +
-                    sesion.falta.matricula +
-                    " del día " +
-                    sesion.falta.ano +
-                    "/" +
-                    sesion.falta.mes +
-                    "/" +
-                    sesion.falta.dia +
-                    " en la materia " +
-                    sesion.falta.materiaSeleccionada +
-                    " en la sesion " +
-                    sesion.falta.sesion
-                });
-              })
-              .catch(function(error) {
+            referencia.delete().then(function() {
+              sesion.falta.estado = vueApp.estadosFalta[2];
+              sesion.falta.estadoPendienteDeCambio = false;
+              console.log("Borrada la falta puesta con id" + sesion.falta.id);
+          }).catch(function(error) {
                 console.error("Error actualizando la falta: ", error);
               });
           } else if (sesion.falta.estado == this.estadosFalta[2]) {

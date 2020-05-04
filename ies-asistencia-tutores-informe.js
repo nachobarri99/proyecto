@@ -343,11 +343,13 @@ new Vue({
       .then(function(querySnapshot){
         querySnapshot.forEach(function(doc){
           var datos = doc.data();
+          if(datos.hasOwnProperty("faltas")){
           var objeto = {};
           objeto.materia = datos.materia;
           objeto.matricula = datos.matricula;
           objeto.faltas = datos.faltas;
           vueApp.faltasTotales.push(objeto);
+          }
         })
         console.log("Faltas totales grupo",vueApp.faltasTotales);
         
@@ -562,7 +564,7 @@ new Vue({
           console.log("Recibidos los datos necesarios para " + procesoActual);
           
           querySnapshot.forEach(function(doc) {
-            let datos = doc.data();
+            var datos = doc.data();
             
            arrayAsignaturas.push(datos.materia);
            
@@ -633,7 +635,9 @@ new Vue({
             if(vueApp.faltasTotales[i].matricula === alumnoPasado.matricula){
               for(var j = 2; j < arrayFaltas.length;j++){
                 if(vueApp.faltasTotales[i].materia === arrayFaltas[j].materia){
+                  console.log("Añadiendo falta " + alumnoPasado.matricula + arrayFaltas[j].materia + vueApp.faltasTotales[i].faltas);
                   arrayFaltas[j].datosAMostrar += vueApp.faltasTotales[i].faltas; 
+                  
                 }
               }
             }
@@ -791,7 +795,7 @@ new Vue({
 
     cargarFaltasAlumno() {
       vueApp.listadoFaltasAlumnosSeleccionado = [];
-
+      vueApp.numeroDeFaltasDelAlumnoSeleccionado = 0;
       console.log(
         "Cargando las faltas del alumno" +
           vueApp.listadoFaltasAlumnosSeleccionado +
@@ -824,7 +828,10 @@ new Vue({
             elemento = doc.data();
             elemento.id = doc.id;
             elemento.estadoPendienteDeCambio = false;
-
+            if(elemento.hasOwnProperty("faltas")){
+              vueApp.numeroDeFaltasDelAlumnoSeleccionado += elemento.faltas;
+            }
+            
             if (typeof elemento.justificadas == "undefined") {
               elemento.justificadas = 0;
             }
@@ -845,7 +852,6 @@ new Vue({
             vueApp.listadoFaltasAlumnosSeleccionado.push(elemento);
           });
           console.log("Numero de faltas" , vueApp.listadoFaltasAlumnosSeleccionado.length);
-          vueApp.numeroDeFaltasDelAlumnoSeleccionado = vueApp.listadoFaltasAlumnosSeleccionado.length;
           vueApp.faltasDelAlumnoCargadas = true;
           vueApp.recalcularFaltas();
         })
@@ -1027,13 +1033,14 @@ new Vue({
       }
     },
 
+    
     /*
      * Estados posibles de las faltas:
      * - Faltas: 0 / Justifciadas: 0     -> Sin falta
      * - Faltas: 1 / Justificadas: 0     -> Falta no justificada
      * - Faltas: 1 / Justificadas: 1     -> Falta justificada
      * - Faltas: 0 / Justificadas: 1     -> No debería haber ningún registro así
-     */
+     
     cambiarEstadoFalta(dia, sesion) {
       if (vueApp.permisosUsuario[vueApp.grupoSeleccionado].includes("w")) {
         var today = new Date();
@@ -1250,6 +1257,7 @@ new Vue({
         );
       }
     },
+    */
 
     obtenerEnlaceFoto(matricula) {
       return (

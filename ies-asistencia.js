@@ -392,13 +392,14 @@ window.vueApp = new Vue({
                   alumnoActual.datos.movilMadre = "";
                   alumnoActual.datos.movilPadre = "";
                   alumnoActual.padresAvisadosPorSms = false;
-                }
+                  alumnoActual.grupo = alumnoActual.grupo;             
                   if (window.location.search.includes("debug")) {
                     console.log(doc.id + ": ");
                     console.log(alumnoActual);
                   }
                     arrayMatriculas.push(alumnoActual)
                   nuevoArray.push(alumnoActual.matricula);
+                }
                    
             });    
             console.log("Obteniendo datos");
@@ -662,7 +663,6 @@ window.vueApp = new Vue({
       var mesSelec = vueApp.fechaSeleccionada.substring(5, 7);
       var diaSelec = vueApp.fechaSeleccionada.substring(8, 10);
       var estadoFalta = "ninguna";
-      var estadoAlumno = "";
       if(alumno.llegoConRetraso){
         estadoFalta = "retraso"
       }
@@ -841,10 +841,10 @@ window.vueApp = new Vue({
       objetoFalta.matricula = Number(alumno.matricula);
       objetoFalta.profesor = vueApp.usuarioAutenticado.id;
       objetoFalta.sesion = vueApp.sesionSeleccionada;
-      objetoFalta.grupo = vueApp.gruposSeleccionados.toString();
+      objetoFalta.grupo = alumno.grupo;
       objetoFalta.faltas = 1;
 
-      var idObjetoFalta = "M" + alumno.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" + vueApp.sesionSeleccionada + "-G" + vueApp.gruposSeleccionados;
+      var idObjetoFalta = "M" + alumno.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" + vueApp.sesionSeleccionada + "-G" + alumno.grupo;
 
       vueApp.dbSecundaria.collection("faltas").doc(idObjetoFalta).set(objetoFalta, { merge: true })
         .then(function () {
@@ -939,7 +939,7 @@ window.vueApp = new Vue({
       var dateTime = date + ' ' + time;
 
       // Se actualiza el documento adecuado en la base de datos..
-      var idObjetoFalta = "M" + alumno.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" + vueApp.sesionSeleccionada + "-G" + vueApp.gruposSeleccionados;
+      var idObjetoFalta = "M" + alumno.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" + vueApp.sesionSeleccionada + "-G" + alumno.grupo;
 
       var objetoFalta = {};
       objetoFalta.ano = Number(anoSelec);
@@ -949,7 +949,7 @@ window.vueApp = new Vue({
       objetoFalta.matricula = Number(alumno.matricula);
       objetoFalta.profesor = vueApp.usuarioAutenticado.id;
       objetoFalta.sesion = vueApp.sesionSeleccionada;
-      objetoFalta.grupo = vueApp.gruposSeleccionados.toString();
+      objetoFalta.grupo = alumno.grupo;
       objetoFalta.retraso = 1;
 
       vueApp.dbSecundaria.collection("faltas").doc(idObjetoFalta).set(objetoFalta, { merge: true })
@@ -1015,7 +1015,7 @@ window.vueApp = new Vue({
       var diaSelec = vueApp.fechaSeleccionada.substring(8, 10);
 
       // Se actualiza el documento adecuado en la base de datos..
-      var idObjetoFalta = "M" + alumno.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" + vueApp.sesionSeleccionada + "-G" + vueApp.gruposSeleccionados;
+      var idObjetoFalta = "M" + alumno.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" + vueApp.sesionSeleccionada + "-G" + alumno.grupo;
 
       var objetoFalta = {};
       objetoFalta.ano = Number(anoSelec);
@@ -1025,9 +1025,9 @@ window.vueApp = new Vue({
       objetoFalta.matricula = Number(alumno.matricula);
       objetoFalta.profesor = vueApp.usuarioAutenticado.id;
       objetoFalta.sesion = vueApp.sesionSeleccionada;
-      objetoFalta.grupo = vueApp.gruposSeleccionados.toString();
-      objetoFalta.retraso = 0;
+      objetoFalta.grupo = alumno.grupo;
       objetoFalta.faltas = 1;
+      objetoFalta.retraso = 0;
 
       vueApp.dbSecundaria.collection("faltas").doc(idObjetoFalta).set(objetoFalta, { merge: true })
         .then(function () {
@@ -1052,7 +1052,7 @@ window.vueApp = new Vue({
       var diaSelec = vueApp.fechaSeleccionada.substring(8, 10);
 
       // Se actualiza el documento adecuado en la base de datos..
-      var idObjetoFalta = "M" + alumno.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" + vueApp.sesionSeleccionada + "-G" + vueApp.gruposSeleccionados;
+      var idObjetoFalta = "M" + alumno.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" + vueApp.sesionSeleccionada + "-G" + alumno.grupo;
 
       var objetoFalta = {};
       objetoFalta.ano = Number(anoSelec);
@@ -1062,7 +1062,7 @@ window.vueApp = new Vue({
       objetoFalta.matricula = Number(alumno.matricula);
       objetoFalta.profesor = vueApp.usuarioAutenticado.id;
       objetoFalta.sesion = vueApp.sesionSeleccionada;
-      objetoFalta.grupo = vueApp.gruposSeleccionados.toString();
+      objetoFalta.grupo = alumno.grupo;
       objetoFalta.retraso = 1;
       objetoFalta.faltas = 0;
 
