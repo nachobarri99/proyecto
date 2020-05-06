@@ -98,24 +98,7 @@
       </div>
 
       
-         
-      <div id="zona-botones-grupo" v-show="grupoSeleccionado !== null" v-if="ordenado" >
-        <button 
-            type="button"
-              class="no-impresion boton-impresion btn btn-outline-secondary"
-              onClick="vueApp.cargarFaltasDelGrupoSeleccionado()"
-              
-            >
-              Calcular Faltas {{grupoSeleccionado}}
-        </button>  
-  
-        <button :disabled="cargadoFaltasGrupo === false"
-              type="button" 
-              class="no-impresion boton-impresion btn btn-outline-secondary"
-              onClick="window.print()"> Imprimir Faltas {{grupoSeleccionado}}
-        </button >
-        
-      </div>
+      
        
 
       <div class="no-impresion">
@@ -126,6 +109,25 @@
             {{ grupo }}
           </option>
         </select>
+
+           
+      
+
+        <button :disabled="cargadoFaltasGrupo === false" v-show="grupoSeleccionado !== null" v-if="ordenado"
+              type="button" id="imprimirFaltas"
+              class="no-impresion boton-impresion btn btn-outline-secondary"
+              onClick="window.print()"> Imprimir Faltas {{grupoSeleccionado}}
+        </button >
+
+        <button id="calcularFaltas"
+              type="button" v-show="grupoSeleccionado !== null" v-if="ordenado"
+              class="no-impresion boton-impresion btn btn-outline-secondary"
+              onClick="vueApp.cargarFaltasDelGrupoSeleccionado()" >
+              Calcular Faltas {{grupoSeleccionado}}
+        </button>  
+        
+     
+
       </div>
     
         
@@ -184,9 +186,6 @@
           de los  alumnos del grupo {{grupoSeleccionado}}
           durante el presente curso escolar:
         </p>
-
-        
-        
         
             <table class="tabla" v-if="materiasGrupo.length > 0">
               <tr>
@@ -283,7 +282,7 @@
           </div>
         </div>
 
-        <div v-if="hayFaltas">
+        <div id="texto-alumno" v-if="hayFaltas">
 
           <p v-show="materiaSeleccionada === ''">
             Se redacta a continuación el número de faltas totales de asistencia

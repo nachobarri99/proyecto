@@ -95,6 +95,7 @@ new Vue({
       "1A",
       "1B",
       "1AC",
+      "1AB",
       "1C",
       "1D",
       "2A",
@@ -601,10 +602,18 @@ new Vue({
           for(var i = 0; i < arrayAsignaturas.length;i++){
               const result = arrayAsignaturasQueNoTiene.includes(arrayAsignaturas[i]);
               if(result){
-                var objeto= {};
+                if(arrayAsignaturas[i] === "TUT"){
+                  var objeto= {};
+                  objeto.materia = arrayAsignaturas[i];
+                  objeto.datosAMostrar = 0;
+                  arrayFaltas.push(objeto);
+                }
+                else{
+                  var objeto= {};
                 objeto.materia = arrayAsignaturas[i];
                 objeto.datosAMostrar = "--";
                 arrayFaltas.push(objeto);
+                }
               }
               else{
                 var objeto= {};
