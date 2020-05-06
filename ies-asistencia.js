@@ -452,6 +452,7 @@ window.vueApp = new Vue({
       vueApp.alumnosDelGrupoEnPantalla = [];    
       vueApp.gruposSeleccionados = this.obtenerGrupos(vueApp.diaSeleccionado, sesion);
       vueApp.materiaSeleccionada = this.obtenerMateria(vueApp.diaSeleccionado, sesion);
+      // A la hora de cargar la sesion buscamos si hay alumnos ocultos
       vueApp.verSiEnLaSesionHayAlumnosOcultos(vueApp.sesionSeleccionada,vueApp.materiaSeleccionada);
       vueApp.numeroGruposPendienteDeCarga = vueApp.gruposSeleccionados.length;
 
@@ -583,6 +584,7 @@ window.vueApp = new Vue({
     solicitarFaltasDelGrupoSeleccionado() {
       vueApp.cargadasFaltasPreexitentes = false;
 
+      var estadoFaltaOculto = "ninguna";
       vueApp.numeroAlumnosLeidasFaltasPreexistentes = 0;
       vueApp.faltasPreexistentesGrupoSeleccionado = {};
 
@@ -610,28 +612,25 @@ window.vueApp = new Vue({
 
             var alumnoSobreElQueVersaLaFalta = vueApp.obtenerAlumnoEnPantallaPorMatricula(elementoFaltaPreexistente.matricula);
             console.log("Alumno que tiene la falta esta oculto",alumnoSobreElQueVersaLaFalta.oculto);
-           
-            if(!alumnoSobreElQueVersaLaFalta.oculto){
+         
+          //Miramos si el alumno que tiene falta esta oculto
+          if(!alumnoSobreElQueVersaLaFalta.oculto){
             if (alumnoSobreElQueVersaLaFalta != null) {
 
               if (elementoFaltaPreexistente.faltas == 1) {
+                estadoFaltaOculto ="falta"
                 alumnoSobreElQueVersaLaFalta.eseAlumnoFalto = true;
               }
               if (elementoFaltaPreexistente.justificadas == 1) {
+                estadoFaltaOculto ="justificada"
                 alumnoSobreElQueVersaLaFalta.laFaltaDelAlumnoEstaJustificada = true;
               }
               if (_.has(elementoFaltaPreexistente, 'introducidaDesdeModuloTutores')) {
                 alumnoSobreElQueVersaLaFalta.faltaIntroducidaPorElTutor = true;
               }
-              if (_.has(elementoFaltaPreexistente, 'padresAvisadosPorSms')) {
-                if (elementoFaltaPreexistente.padresAvisadosPorSms) {
-                  alumnoSobreElQueVersaLaFalta.padresAvisadosPorSms = true;
-                }
-              }
-              else {
-                alumnoSobreElQueVersaLaFalta.padresAvisadosPorSms = false;
-              }
+             
               if (elementoFaltaPreexistente.retraso == 1) {
+                estadoFaltaOculto ="retraso"
                 alumnoSobreElQueVersaLaFalta.llegoConRetraso = true;
               }
 
@@ -640,7 +639,34 @@ window.vueApp = new Vue({
               console.warn("No he encontrado el alumno del que habla la falta preexistente. ¿Tal vez se dio de baja?")
             }
           }
+          // Si esta oculto actualizamos el campo falta de la bd de datos del alumno y se le asigan su valor correspondiente
+          else{
+            if (elementoFaltaPreexistente.faltas == 1) {
+              estadoFaltaOculto ="falta"
+             
+            }
+            if (elementoFaltaPreexistente.justificadas == 1) {
+              estadoFaltaOculto ="justificada"
+              
+            }
+            if (_.has(elementoFaltaPreexistente, 'introducidaDesdeModuloTutores')) {
+              alumnoSobreElQueVersaLaFalta.faltaIntroducidaPorElTutor = true;
+            }
+           
+            if (elementoFaltaPreexistente.retraso == 1) {
+              estadoFaltaOculto ="retraso"
+              
+            }
 
+            var idAlumnoOculto = "M" + elementoFaltaPreexistente.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" +
+            vueApp.sesionSeleccionada + " -M " + vueApp.materiaSeleccionada;
+           
+            var docRef = vueApp.dbTablasComunes.collection("ocultos").doc(idAlumnoOculto);
+            
+            docRef.update({
+              falta : estadoFaltaOculto
+            });
+          }
             vueApp.faltasPreexistentesGrupoSeleccionado[elementoFaltaPreexistente.matricula] = elementoFaltaPreexistente;
             console.log(vueApp.faltasPreexistentesGrupoSeleccionado[doc.data().matricula]);
           });
@@ -748,6 +774,7 @@ window.vueApp = new Vue({
             if (doc.exists) {
                 console.log("Document data:", doc.data());
                 var datos = doc.data();
+                
                 if(datos.falta === "falta"){
                   vueApp.alumnosDelGrupoEnPantalla[vueApp.contadorDesocultar].eseAlumnoFalto = true;
                 }
@@ -1106,18 +1133,16 @@ window.vueApp = new Vue({
 
     cargarDatosAlumnosRecursivamente() {
     
-      console.log("Quedan por cargar los datos de " + vueApp.arrayTemporalAlumnosParaCargarDatos.length + " alumnos!");
-
-      
-    
-      
+      console.log("Quedan por cargar los datos de " + vueApp.arrayTemporalAlumnosParaCargarDatos.length + " alumnos!")
       if (vueApp.arrayTemporalAlumnosParaCargarDatos.length > 0) {
 
         var alumnoActual = vueApp.arrayTemporalAlumnosParaCargarDatos.shift();
 
         if(vueApp.arrayMatriculaSesion.length > 0){
           console.log("Procedemos a ver si estan ocultos");
-              vueApp.verSiHayAlumnoOculto(alumnoActual.matricula);
+          //Se procede a ver si el alumno que se carga estaba oculto
+          vueApp.verSiHayAlumnoOculto(alumnoActual.matricula);
+
         }
         var procesoActual = "cargar los datos del alumno seleccionado";
         console.log("Iniciando el proceso de " + procesoActual);
