@@ -284,7 +284,7 @@
 
         <div id="texto-alumno" v-if="hayFaltas">
 
-          <p v-show="materiaSeleccionada === ''">
+          <p>
             Se redacta a continuación el número de faltas totales de asistencia
             del alumno {{ datosAlumnoSeleccionado.nombre }} 
             {{datosAlumnoSeleccionado.apellido1 }} {{datosAlumnoSeleccionado.apellido2 }}
@@ -293,20 +293,15 @@
 
              El alumno {{ datosAlumnoSeleccionado.nombre }} 
              {{datosAlumnoSeleccionado.apellido1 }} {{datosAlumnoSeleccionado.apellido2 }}
-             tiene un total de: {{ numeroDeFaltasDelAlumnoSeleccionado }} faltas durante el presente curso escolar.
+             tiene un total de: {{ numeroDeFaltasDelAlumnoSeleccionado}} faltas<span v-if="mostrarJustificadas == true && mostrarNoJustificadas == false">
+             justificadas</span> <span v-if="mostrarJustificadas == false && mostrarNoJustificadas == true">no justificadas</span> 
+             <span v-if="materiaSeleccionada !== ''">
+              en la materia {{materiaSeleccionada}}</span>
+             durante el presente curso escolar.
 
           </p>
 
-          <p v-show="materiaSeleccionada != ''">
-            Se redacta a continuación el número de faltas totales de asistencia
-            del alumno {{ datosAlumnoSeleccionado.nombre }} 
-            {{datosAlumnoSeleccionado.apellido1 }} {{datosAlumnoSeleccionado.apellido2 }}
-             del grupo {{grupoSeleccionado}} en la materia {{materiaSeleccionada}} durante el presente curso escolar.
-          </br>
-            El alumno {{ datosAlumnoSeleccionado.nombre }} 
-            {{datosAlumnoSeleccionado.apellido1 }} {{datosAlumnoSeleccionado.apellido2 }}
-            tiene un total de: <span v-for="(arrayFaltas, materia) in faltasFiltradasPorMateria">{{arrayFaltas.length}} </span>faltas en la materia {{materiaSeleccionada}} durante el presente curso escolar.
-          </p>
+          
           <p>
             Se relaciona a continuación el historial de las faltas de asistencia
             del alumno {{ datosAlumnoSeleccionado.nombre }} {{
@@ -315,7 +310,7 @@
             durante el presente curso escolar
             <span v-show="materiaSeleccionada.length > 0"
               >en la materia {{materiaSeleccionada}}</span
-            >:
+            >
           </p>
 
           <ul id="listado-faltas" v-if="tipoVisualizacion == 'porFecha'">

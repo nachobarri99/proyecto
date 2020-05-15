@@ -42,6 +42,7 @@ new Vue({
     mensajesProceso: "",
 
     faltasTotales :[],
+    justificadas:null,
     materiasGrupo : [],
     faltasGrupoCargada: null,
     grupoSeleccionado: null,
@@ -950,10 +951,10 @@ new Vue({
       } else {
         vueApp.hayFaltas = false;
       }
-
+      vueApp.numeroDeFaltasDelAlumnoSeleccionado = arrayTemporalOrdenado.length;
       vueApp.faltasFiltradasPorFecha = objetoAgrupadoPorFecha;
       vueApp.faltasFiltradasPorMateria = objetoAgrupadoPorMateria;
-
+      console.log("Ver faltas",vueApp.faltasFiltradasPorMateria);
       vueApp.faltasFiltradas = [];
     },
 
@@ -1069,6 +1070,8 @@ new Vue({
         "Activando o desactivando que se muestren las justificadas..."
       );
       vueApp.mostrarJustificadas = mostrarONo;
+      
+      console.log("A ver el valor",vueApp.mostrarJustificadas);
       vueApp.recalcularFaltas();
     },
 
@@ -1077,6 +1080,8 @@ new Vue({
         "Activando o desactivando que se muestren las no justificadas..."
       );
       vueApp.mostrarNoJustificadas = mostrarONo;
+     
+      console.log("A ver el valor",vueApp.mostrarNoJustificadas);
       vueApp.recalcularFaltas();
     }
   }
