@@ -820,18 +820,22 @@ window.vueApp = new Vue({
       var mesSelec = vueApp.fechaSeleccionada.substring(5, 7);
       var diaSelec = vueApp.fechaSeleccionada.substring(8, 10);
       //Vamos recorriendo los alumnos de la sesion y eliminando de la bd los que estan ocultos.
-      if(vueApp.contadorDesocultar < vueApp.arrayAlumnosOcultos.length){
+      if(vueApp.arrayAlumnosOcultos.length > 0){
         var idAlumnoOculto = "M" + vueApp.arrayAlumnosOcultos[vueApp.contadorDesocultar].matricula + "-D" + anoSelec 
         + "-" + mesSelec + "-" + diaSelec + "-S" + vueApp.sesionSeleccionada + " -M " + vueApp.materiaSeleccionada;
-              
+       
+        console.log("Alumno Oculto",vueApp.arrayAlumnosOcultos[vueApp.contadorDesocultar]);
         var docRef = vueApp.dbTablasComunes.collection("ocultos").doc(idAlumnoOculto);
 
         docRef.get().then(function(doc) {
             if (doc.exists) {
                 var datos = doc.data();
                 console.log("A ver si esta",datos.posicion);
-                vueApp.alumnosDelGrupoEnPantalla.splice(datos.posicion,0,vueApp.arrayAlumnosOcultos[vueApp.contadorDesocultar]);
-                vueApp.arrayAlumnosOcultos.splice(vueApp.contadorDesocultar,1);
+                var alumnoAPoner = vueApp.arrayAlumnosOcultos.shift();
+                console.log(vueApp.arrayAlumnosOcultos);
+                vueApp.alumnosDelGrupoEnPantalla.splice(datos.posicion,0,alumnoAPoner);
+                
+                console.log("Array",vueApp.arrayAlumnosOcultos);
                 if(datos.falta === "falta"){
                   vueApp.alumnosDelGrupoEnPantalla[datos.posicion].eseAlumnoFalto = true;
                 }
@@ -842,22 +846,21 @@ window.vueApp = new Vue({
                   vueApp.alumnosDelGrupoEnPantalla[datos.posicion].laFaltaDelAlumnoEstaJustificada = true;
                 }
                 vueApp.alumnosDelGrupoEnPantalla[datos.posicion].oculto = false;
-                vueApp.contadorDesocultar++;
-                vueApp.hayOcultos = false;
                 vueApp.dbTablasComunes.collection("ocultos").doc(idAlumnoOculto).delete().then(function() {
-                  vueApp.desocultarAlumnos()})
-            } else {
-                vueApp.contadorDesocultar++;
-                vueApp.desocultarAlumnos();
-            }
+                  vueApp.desocultarAlumnos();
+                })
+            } 
         }).catch(function(error) {
             console.log("Error getting document:", error);
         }); 
-          }    
-          else{ 
-            console.log("Desocultados");
-            vueApp.contadorDesocultar = 0;
-          }
+      }
+      else{
+        vueApp.contadorDesocultar = 0;
+        vueApp.hayOcultos = false;
+        console.log("Desocultados");
+        console.log("Alumnos grupo",vueApp.alumnosDelGrupoEnPantalla);
+      }
+         
     },
 
 
