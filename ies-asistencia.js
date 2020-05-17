@@ -708,7 +708,7 @@ window.vueApp = new Vue({
       objetoAlumnoOculto.posicion = posicion;
       var idAlumnoOculto = "M" + alumno.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" +
       vueApp.sesionSeleccionada + " -M " + vueApp.materiaSeleccionada;
-      vueApp.alumnosDelGrupoEnPantalla.splice(posicion,1);
+     
       vueApp.dbTablasComunes.collection("ocultos").doc(idAlumnoOculto).set(objetoAlumnoOculto).then(function(){
         console.log("Alumno grabada correctamente en la coleccion 'ocultos' con id de documento " + idAlumnoOculto);
         vueApp.arrayAlumnosOcultos.push(alumno);
@@ -724,10 +724,12 @@ window.vueApp = new Vue({
           alumno.laFaltaDelAlumnoEstaJustificada = false;
         }
         alumno.oculto = true;
+        vueApp.alumnosDelGrupoEnPantalla.splice(posicion,1);
         vueApp.hayOcultos = true;
         console.log("Alumno" + alumno.matricula + alumno.nombre +alumno.apellidos + "ocultos");
         
       });
+      console.log();
     },
 
     /*
