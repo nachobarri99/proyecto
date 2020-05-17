@@ -107,18 +107,25 @@
               v-on:click="desocultarAlumnos()">       
               <span>Desocultar Alumnos</span>
             </button>
+        
 
-
+        <div v-if="arrayAlumnosOcultos.length > 0" class="lista">
+          Selecciona un alumno oculto:
+          <select class="form-control" v-model="alumnoOcultoSeleccionado">
+            <option disabled value="">Alumno</option>
+            <option
+              v-for="alumno in arrayAlumnosOcultos"
+              v-bind:value="alumno"
+            >
+              {{ alumno.apellidos }}, {{alumno.nombre}} - {{alumno.matricula}}
+            </option>
+          </select>
         </div>
+
+      </div>
         <div v-for="alumno in alumnosDelGrupoEnPantalla" v-bind:class="obtenerClaseCssAlumno(alumno)">
           
-          
-
-
           <div v-show="!alumno.oculto">
-
-
-          
         
           <div class="col-xs-4 col-md-4 col-lg-2 zona-imagen-alumno">
 
@@ -181,17 +188,6 @@
                 <span v-show="alumno.convirtiendoFaltaEnRetraso ">Convirtiendo falta a retraso...</span>
               </button>
 
-              <button role="button " type="button " class="btn btn-outline-danger btn-sm "
-                v-on:click="ponerFalta(alumno, true) " :disabled="alumno.poniendoFalta || alumno.poniendoFaltaConSms"
-                v-show="!(alumno.eseAlumnoFalto) 
-                        && ((alumno.poniendoFalta && alumno.poniendoFaltaConSms) || (!alumno.poniendoFalta && !alumno.poniendoFaltaConSms)) 
-                        && (alumno.datos.movilMadre.length > 0 || alumno.datos.movilPadre.length > 0) 
-                        && !(alumno.poniendoRetraso) && !(alumno.quitandoRetraso)
-                        && !(alumno.llegoConRetraso)" :disabled="alumno.poniendoFaltaConSms">
-                <span v-show="!alumno.poniendoFalta && !alumno.poniendoFaltaConSms">Falta y SMS a los padres</span>
-                <span v-show="alumno.poniendoFalta  && alumno.poniendoFaltaConSms">Poniendo falta enviando SMS a los
-                  padres...</span>
-              </button>
 
               <button role="button " type="button " class="btn btn-outline-secondary btn-sm "
                 v-show="alumno.eseAlumnoFalto && !alumno.faltaIntroducidaPorElTutor && !alumno.laFaltaDelAlumnoEstaJustificada && !alumno.llegoConRetraso && !alumno.poniendoRetraso && !alumno.quitandoRetraso && !alumno.convirtiendoFaltaEnRetraso"

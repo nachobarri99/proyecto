@@ -39,9 +39,15 @@ p {
   margin-top: 1rem;
 }
 
-#boton-oculto{
-
+.lista{
+  margin:20px  40px ;	
+  border:1px solid #d9d9d9;
+  height:30px;
+  overflow: hidden;
+  width: 230px;
+  position:relative;
 }
+
 
 
 .g-signin2 {

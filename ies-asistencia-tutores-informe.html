@@ -293,8 +293,8 @@
 
              El alumno {{ datosAlumnoSeleccionado.nombre }} 
              {{datosAlumnoSeleccionado.apellido1 }} {{datosAlumnoSeleccionado.apellido2 }}
-             tiene un total de: {{ numeroDeFaltasDelAlumnoSeleccionado}} faltas<span v-if="mostrarJustificadas == true && mostrarNoJustificadas == false">
-             justificadas</span> <span v-if="mostrarJustificadas == false && mostrarNoJustificadas == true">no justificadas</span> 
+             tiene un total de: {{ numeroDeFaltasDelAlumnoSeleccionado}} faltas<span v-show="mostrarJustificadas == true && mostrarNoJustificadas == false">
+             justificadas</span> <span v-show="mostrarJustificadas == false && mostrarNoJustificadas == true">no justificadas</span> 
              <span v-if="materiaSeleccionada !== ''">
               en la materia {{materiaSeleccionada}}</span>
              durante el presente curso escolar.
