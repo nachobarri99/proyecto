@@ -134,7 +134,6 @@
               @error="imagenAvatarError">
             <div class="estado-alumno"
               :class="{ 'estado-retrasado': alumno.llegoConRetraso, 'estado-falto': alumno.eseAlumnoFalto, 'estado-justificada': alumno.laFaltaDelAlumnoEstaJustificada}">
-              <span v-show="!alumno.eseAlumnoFalto && !alumno.llegoConRetraso">TODO OK</span>
               <span v-show="alumno.llegoConRetraso">RETRASADO</span>
               <span v-show="alumno.eseAlumnoFalto && !alumno.laFaltaDelAlumnoEstaJustificada">FALTA</span>
               <span v-show="alumno.laFaltaDelAlumnoEstaJustificada">FALTA JUSTIFICADA</span>

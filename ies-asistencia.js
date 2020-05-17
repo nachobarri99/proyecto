@@ -708,10 +708,11 @@ window.vueApp = new Vue({
       objetoAlumnoOculto.posicion = posicion;
       var idAlumnoOculto = "M" + alumno.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" +
       vueApp.sesionSeleccionada + " -M " + vueApp.materiaSeleccionada;
+      vueApp.alumnosDelGrupoEnPantalla.splice(posicion,1);
       vueApp.dbTablasComunes.collection("ocultos").doc(idAlumnoOculto).set(objetoAlumnoOculto).then(function(){
         console.log("Alumno grabada correctamente en la coleccion 'ocultos' con id de documento " + idAlumnoOculto);
         vueApp.arrayAlumnosOcultos.push(alumno);
-        vueApp.alumnosDelGrupoEnPantalla.splice(posicion,1);
+    
         console.log(alumno);
         if(alumno.llegoConRetraso){
           alumno.llegoConRetraso = false;
@@ -819,6 +820,7 @@ window.vueApp = new Vue({
       var anoSelec = vueApp.fechaSeleccionada.substring(0, 4);
       var mesSelec = vueApp.fechaSeleccionada.substring(5, 7);
       var diaSelec = vueApp.fechaSeleccionada.substring(8, 10);
+      var alumnoAPoner = null;
       //Vamos recorriendo los alumnos de la sesion y eliminando de la bd los que estan ocultos.
       if(vueApp.arrayAlumnosOcultos.length > 0){
         var idAlumnoOculto = "M" + vueApp.arrayAlumnosOcultos[vueApp.contadorDesocultar].matricula + "-D" + anoSelec 
@@ -831,7 +833,7 @@ window.vueApp = new Vue({
             if (doc.exists) {
                 var datos = doc.data();
                 console.log("A ver si esta",datos.posicion);
-                var alumnoAPoner = vueApp.arrayAlumnosOcultos.shift();
+                alumnoAPoner = vueApp.arrayAlumnosOcultos.shift();
                 console.log(vueApp.arrayAlumnosOcultos);
                 vueApp.alumnosDelGrupoEnPantalla.splice(datos.posicion,0,alumnoAPoner);
                 
