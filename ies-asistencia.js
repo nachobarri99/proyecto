@@ -631,9 +631,11 @@ window.vueApp = new Vue({
                       estadoFaltaOculto ="justificada"
                       alumnoSobreElQueVersaLaFalta.laFaltaDelAlumnoEstaJustificada = true;
                     }
+                    
                     if (_.has(elementoFaltaPreexistente, 'introducidaDesdeModuloTutores')) {
                       alumnoSobreElQueVersaLaFalta.faltaIntroducidaPorElTutor = true;
                     }
+                  
                   
                     if (elementoFaltaPreexistente.retraso == 1) {
                       estadoFaltaOculto ="retraso"
@@ -696,15 +698,7 @@ window.vueApp = new Vue({
       objetoAlumnoOculto.posicion = posicion;
       var idAlumnoOculto = "M" + alumno.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" +
       vueApp.sesionSeleccionada + " -M " + vueApp.materiaSeleccionada;
-       if(alumno.llegoConRetraso){
-          alumno.llegoConRetraso = false;
-        }
-        else if(alumno.eseAlumnoFalto){
-          alumno.eseAlumnoFalto = false;
-        }
-        else if(alumno.laFaltaDelAlumnoEstaJustificada){
-          alumno.laFaltaDelAlumnoEstaJustificada = false;
-        }
+       
       console.log("Alumno a ocultar",vueApp.alumnosDelGrupoEnPantalla[posicion]);
       vueApp.dbTablasComunes.collection("ocultos").doc(idAlumnoOculto).set(objetoAlumnoOculto).then(function(){
         console.log("Alumno grabada correctamente en la coleccion 'ocultos' con id de documento " + idAlumnoOculto);
@@ -856,6 +850,7 @@ window.vueApp = new Vue({
       }
       else{
         vueApp.contadorDesocultar = 0;
+        vueApp.arrayAlumnosOcultos = [];
         vueApp.hayOcultos = false;
         console.log("Desocultados");
         console.log("Alumnos grupo",vueApp.alumnosDelGrupoEnPantalla);
@@ -1206,8 +1201,8 @@ window.vueApp = new Vue({
               else if(datos.falta === "justificada"){
                 vueApp.alumnosDelGrupoEnPantalla[i].laFaltaDelAlumnoEstaJustificada = false;
               }
-              vueApp.arrayAlumnosOcultos.push(vueApp.alumnosDelGrupoEnPantalla[i]);
               vueApp.alumnosDelGrupoEnPantalla[i].oculto = true;
+              vueApp.arrayAlumnosOcultos.push(vueApp.alumnosDelGrupoEnPantalla[i]);     
             });
             
       });

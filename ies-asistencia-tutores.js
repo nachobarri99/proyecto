@@ -819,26 +819,27 @@ new Vue({
             referencia.delete().then(function() {
               sesion.falta.estado = vueApp.estadosFalta[2];
               sesion.falta.estadoPendienteDeCambio = false;
+              vueApp.listadoFaltasAlumnosSeleccionado.splice(vueApp.listadoFaltasAlumnosSeleccionado.indexOf(objetoFalta),1);
               console.log("Borrada la falta puesta con id" + sesion.falta.id);
           }).catch(function(error) {
                 console.error("Error actualizando la falta: ", error);
               });
           } else if (sesion.falta.estado == this.estadosFalta[2]) {
             //Sin falta -> Pasa a no justificada
-
-            referencia
-              .update({
-                faltas: 1,
-                justificadas: 0
-              })
-              .then(function() {
-                console.log(
-                  "Falta actualizada correctamente! Ahora no esta justificada!"
-                );
-                sesion.falta.estado = vueApp.estadosFalta[0];
+            vueApp.dbSecundaria
+            .collection("faltas")
+            .doc(idObjetoFalta)
+            .set(objetoFalta)
+            .then(function() {
+              sesion.falta.estado = vueApp.estadosFalta[1];
                 sesion.falta.faltas = 1;
                 sesion.falta.justificadas = 0;
                 sesion.falta.estadoPendienteDeCambio = false;
+              console.log(
+                "Falta grabada correctamente en el siguiente documento:"
+              );
+            
+                
                 // Se graba un documento de log de la accion
                 var nuevoElementoDeLog = vueApp.dbSecundaria
                   .collection("log")
