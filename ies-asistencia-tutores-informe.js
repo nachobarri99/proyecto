@@ -325,6 +325,10 @@ new Vue({
       vueApp.comprobarSiElUsuarioPuedeModificar();
     },
 
+    /*
+    Metodo en el cual se inicializan las varibles para cargar las faltas del grupo
+    seleccionado
+    */
     cambiarVariablesCalcularFaltasGrupoSeleccionado(){
       vueApp.cargandoTabla = false;
       vueApp.cargadoFaltasGrupo = false;
@@ -354,7 +358,7 @@ new Vue({
           }
         })
         console.log("Faltas totales grupo",vueApp.faltasTotales);
-        
+         // Una vez cargada las faltas, secargan las materias del grupo
         vueApp.cargarMateriasDelGrupoSeleccionado();
       })
     },
@@ -389,6 +393,11 @@ new Vue({
           
       })
     },
+
+    /*
+      Metodo en el cual se cargan todos los grupos del centro
+    */
+
     cargarListadoGrupos() {
       console.log("Cargando los grupos existentes en el Centro...");
       vueApp.mensajesProceso +=
@@ -416,6 +425,10 @@ new Vue({
             "Error: se produjo un error obteniendo los grupos existentes en el centro<br>";
         });
     },
+
+    /*
+      Metodo en el cual se cargan todos los alumnos del centro y se les mete en un array
+    */
 
     cargarTodosLosAlumnos() {
       console.log("Cargando los alumnos existentes en el Centro...");
@@ -509,6 +522,10 @@ new Vue({
         });
     },
 
+    /*
+    Metodo en el cual se cargan las materias del alumno seleccionado
+    y se le añade la materia tut si pertenece a algun grupo de la eso
+    */
     cargarMateriasAlumnoSeleccionado() {
       var procesoActual = "obtener las materias del alumno seleccionado";
       console.log("Iniciando el proceso de " + procesoActual);
@@ -553,7 +570,7 @@ new Vue({
     },
 
     /*
-    Método en el cual cargamos datos de los alumnos del grupo seleccionado
+    Método en el cual cargamos datos y guardamos las faltas de los alumnos del grupo seleccionado
      */
     cargarMateriasYFaltasAlumnoGrupo(array){
       var procesoActual = "obtener las materias del alumno seleccionado";
@@ -672,8 +689,6 @@ new Vue({
             }
           }
           
-          
-
 
           vueApp.datosGrupoSeleccionado.push(arrayAlumno);
           
@@ -694,7 +709,10 @@ new Vue({
     },
 
    
-
+    /*
+    Metodo en el cual se comienza el proceso de cargar el informe de 
+    las faltas de los alumnos del grupo seleccionado
+    */
     cargarFaltasDelGrupoSeleccionado(){
       console.log("Vamos a cargar los datos de los alumnos");  
       if(vueApp.listadoAlumnos.length > 0){
@@ -712,38 +730,9 @@ new Vue({
    
 
     
-
-
-    comprobarSiElUsuarioPuedeModificar() {
-      console.log("Cmprobando si tienes permiso para justificar faltas...");
-      vueApp.mensajesProceso +=
-        "Cmprobando si tienes permiso para justificar faltas...<br>";
-
-      var referencia = this.dbTablasComunes.collection("roles");
-      referencia
-        .where("id", "==", vueApp.usuarioAutenticado.id)
-        .get()
-        .then(function(querySnapshot) {
-          console.log(
-            "Datos sobre los permisos que tienes concedidos recibidos!"
-          );
-          vueApp.mensajesProceso +=
-            "Datos sobre los permisos que tienes concedidos recibidos!!<br>";
-          querySnapshot.forEach(function(doc) {
-            vueApp.documentosRecibidosTablasComunesV2++;
-            vueApp.permisosUsuario = doc.data();
-          });
-        })
-        .catch(function(error) {
-          console.log(
-            "Error: se produjo un error obteniendo los permisos que tienes concedidos",
-            error
-          );
-          vueApp.mensajesProceso +=
-            "Error: se produjo un error obteniendo los permisos que tienes concedidos<br>";
-        });
-    },
-
+    /*
+    Metodo en el cual se cargan el listado de alumnos del grupo seleccinado
+    */
     cargarListadoAlumnosDeUnGrupo() {
       vueApp.listadoAlumnos = [];
       console.log(
@@ -822,6 +811,9 @@ new Vue({
       vueApp.ordenado = true;
     },
 
+    /*
+    Metodo en el cual se cargan las faltas del alumno seleccionado
+    */
     cargarFaltasAlumno() {
       vueApp.listadoFaltasAlumnosSeleccionado = [];
       vueApp.numeroDeFaltasDelAlumnoSeleccionado = 0;
@@ -893,6 +885,7 @@ new Vue({
           );
         });
     },
+
 
     recalcularFaltas() {
       console.log(vueApp.listadoFaltasAlumnosSeleccionado);
@@ -1085,6 +1078,9 @@ new Vue({
       vueApp.tipoVisualizacion = "porMateria";
     },
 
+    /*
+    Metodo en el cual cambia la vista a ver las faltas justificadas
+    */
     cambiarMostrarJustificadas(mostrarONo) {
       console.log(
         "Activando o desactivando que se muestren las justificadas..."
@@ -1094,7 +1090,9 @@ new Vue({
       console.log("A ver el valor",vueApp.mostrarJustificadas);
       vueApp.recalcularFaltas();
     },
-
+    /*
+    Metodo en el cual cambia la vista a ver las faltas no justificadas
+    */
     cambiarMostrarNoJusticadas(mostrarONo) {
       console.log(
         "Activando o desactivando que se muestren las no justificadas..."

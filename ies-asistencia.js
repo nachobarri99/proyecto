@@ -586,6 +586,10 @@ window.vueApp = new Vue({
       return 0;
     },
 
+    /*
+    Metodo en el cual se pregunta a la base de datos las faltas que hay en la sesion y materia seleccionada
+    Y se actualiza en la base de datos de los alumnos ocultos , el estado de falta que tendrian en caso de que tuvieran alguna falta
+    */
 
     solicitarFaltasDelGrupoSeleccionado() {
       vueApp.cargadasFaltasPreexitentes = false;
@@ -636,22 +640,9 @@ window.vueApp = new Vue({
                       alumnoSobreElQueVersaLaFalta.llegoConRetraso = true;
                     }
                 }
-                else{
-                  if (elementoFaltaPreexistente.faltas == 1) {
-                    estadoFaltaOculto ="falta" 
-                  }
-                  if (elementoFaltaPreexistente.justificadas == 1) {
-                    estadoFaltaOculto ="justificada"
-                  }
-                  if (_.has(elementoFaltaPreexistente, 'introducidaDesdeModuloTutores')) {
-                    alumnoSobreElQueVersaLaFalta.faltaIntroducidaPorElTutor = true;
-                  }
-                 
-                  if (elementoFaltaPreexistente.retraso == 1) {
-                    estadoFaltaOculto ="retraso"
-                  }
-                  
                 
+                  
+                // Si esta oculto actualizamos el campo falta de la bd de datos del alumno y se le asigan su valor correspondiente
                 var idAlumnoOculto = "M" + elementoFaltaPreexistente.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" +
                   vueApp.sesionSeleccionada + " -M " + vueApp.materiaSeleccionada;
                  
@@ -661,11 +652,8 @@ window.vueApp = new Vue({
                     falta : estadoFaltaOculto
                   })
                   .catch(function(error) {
-                    console.log("Error:", error);
+                    console.log("Error", error);
                 }); 
-              }
-            
-          // Si esta oculto actualizamos el campo falta de la bd de datos del alumno y se le asigan su valor correspondiente
           
             vueApp.faltasPreexistentesGrupoSeleccionado[elementoFaltaPreexistente.matricula] = elementoFaltaPreexistente;
             console.log(vueApp.faltasPreexistentesGrupoSeleccionado[doc.data().matricula]);
@@ -721,6 +709,7 @@ window.vueApp = new Vue({
       vueApp.dbTablasComunes.collection("ocultos").doc(idAlumnoOculto).set(objetoAlumnoOculto).then(function(){
         console.log("Alumno grabada correctamente en la coleccion 'ocultos' con id de documento " + idAlumnoOculto);
         vueApp.arrayAlumnosOcultos.push(alumno);
+        alumno.oculto = true;
         if(alumno.llegoConRetraso){
           alumno.llegoConRetraso = false;
         }
@@ -731,8 +720,6 @@ window.vueApp = new Vue({
           alumno.laFaltaDelAlumnoEstaJustificada = false;
         }
         console.log(alumno);
-        
-        alumno.oculto = true;
         
         vueApp.hayOcultos = true;
         console.log("Alumno" + alumno.matricula + alumno.nombre +alumno.apellidos + "ocultos");
@@ -775,6 +762,9 @@ window.vueApp = new Vue({
       
     },
     
+    /*
+    Metodo en el cual desocultamos al alumno que seleccionamos en el desplegable
+    */
     desocultarAlumno(){
       var anoSelec = vueApp.fechaSeleccionada.substring(0, 4);
       var mesSelec = vueApp.fechaSeleccionada.substring(5, 7);
@@ -824,11 +814,14 @@ window.vueApp = new Vue({
      
     },
 
+    /*
+    Metodo en el cual desocultamos a todos los alumnos que esten ocultos de la sesion y materia
+    seleccionada
+    */
     desocultarAlumnos(){
       var anoSelec = vueApp.fechaSeleccionada.substring(0, 4);
       var mesSelec = vueApp.fechaSeleccionada.substring(5, 7);
       var diaSelec = vueApp.fechaSeleccionada.substring(8, 10);
-      var alumnoAPoner = null;
       //Vamos recorriendo los alumnos de la sesion y eliminando de la bd los que estan ocultos.
       if(vueApp.arrayAlumnosOcultos.length > 0){
         var idAlumnoOculto = "M" + vueApp.arrayAlumnosOcultos[vueApp.contadorDesocultar].matricula + "-D" + anoSelec 
@@ -908,8 +901,10 @@ window.vueApp = new Vue({
       e.target.src = "https://cdn.glitch.com/245e020d-9485-4a19-a040-0306e5e43fb0%2Favatar.jpg?v=1580142827987";
     },
 
-
-    ponerFalta(alumno, hayQueEnviarSMS) {
+    /*
+    Metodo el cual ponemos falta al alumno
+    */
+    ponerFalta(alumno) {
 
       console.log("Poniendo falta...");
 
@@ -951,13 +946,6 @@ window.vueApp = new Vue({
           vueApp.faltasPreexistentesGrupoSeleccionado[alumno.matricula].id = idObjetoFalta;
           alumno.eseAlumnoFalto = true;
 
-          if (hayQueEnviarSMS) {
-            vueApp.enviarSmsAPadres(alumno, vueApp.fechaSeleccionada, vueApp.sesionSeleccionada, vueApp.materiaSeleccionada, vueApp.faltasPreexistentesGrupoSeleccionado[alumno.matricula]);
-          }
-          else {
-            alumno.poniendoFalta = false;
-          }
-
         })
         .catch(function (error) {
           // TODO: que este error salga mas bonito
@@ -977,6 +965,11 @@ window.vueApp = new Vue({
     },
 
 
+    /*
+    Metodo el cual quitamos la falta y borramos el documumento correspondiente de la bd
+
+    */
+
     quitarFalta(alumno) {
 
       alumno.quitandoFalta = true;
@@ -989,7 +982,7 @@ window.vueApp = new Vue({
 
       console.log("Sobreescribiendo la falta con ID " + idDocASobreescribir);
 
-      var documentoASobreescribir = vueApp.dbSecundaria.collection("faltas").doc(idDocASobreescribir).delete()
+      vueApp.dbSecundaria.collection("faltas").doc(idDocASobreescribir).delete()
         .then(function () {
           console.log("Falta eliminada!");
 
@@ -1018,7 +1011,9 @@ window.vueApp = new Vue({
 
     },
 
-
+    /*
+    Metodo el cula se le pone un retraso al alumno pasado por parametro
+    */
     ponerRetraso(alumno) {
       alumno.poniendoRetraso = true;
 
@@ -1065,7 +1060,9 @@ window.vueApp = new Vue({
     // TODO: faltaria grabar log de la accion del profesor     
     },
 
-
+    /*
+    Metodo el cual quitamos un retraso y eliminamos le documento correspondiente
+    */
     quitarRetraso(alumno) {
       alumno.quitandoRetraso = true;
 
@@ -1073,33 +1070,31 @@ window.vueApp = new Vue({
       var mesSelec = vueApp.fechaSeleccionada.substring(5, 7);
       var diaSelec = vueApp.fechaSeleccionada.substring(8, 10);
 
-      var today = new Date();
-      var date = today.getFullYear() + '-' + ("0" + (today.getMonth() + 1)).slice(-2) + '-' + ("0" + today.getDate()).slice(-2);
-      var time = ((today.getHours() < 10 ? '0' : '') + today.getHours()) + ":" + ((today.getMinutes() < 10 ? '0' : '') + today.getMinutes()) + ":" + ((today.getSeconds() < 10 ? '0' : '') + today.getSeconds());
-      var dateTime = date + ' ' + time;
 
       // Se actualiza el documento adecuado en la base de datos..
       var idObjetoFalta = "M" + alumno.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" + vueApp.sesionSeleccionada + "-G" + vueApp.gruposSeleccionados;
 
-      var objetoFalta = {};
-      objetoFalta.retraso = 0;
+      
 
       vueApp.dbSecundaria.collection("faltas").doc(idObjetoFalta).delete()
         .then(function () {
-          console.log("Retraso actualizado correctamente en la coleccion 'faltas' con id de documento " + idObjetoFalta);
-          vueApp.faltasPreexistentesGrupoSeleccionado[alumno.matricula].retraso = 1;
+          console.log("Eliminado retraso correctamente en la coleccion 'faltas' con id de documento " + idObjetoFalta);
+          vueApp.faltasPreexistentesGrupoSeleccionado[alumno.matricula].retraso = 0;
           alumno.llegoConRetraso = false;
           alumno.quitandoRetraso = false;
         })
         .catch(function (error) {
-          console.error("Error escribiendo el retraso: ", error);
+          console.error("Error escribiendo eliminando el documento: ", error);
         });
 
-
-    // TODO: faltaria grabar log de la accion del profesor     
+ 
     },
 
 
+    /*
+    Metodo el cual se convierte el retraso en falta actualizando
+    el documento correspondiente en la base de datos
+    */
     convertirRetrasoEnFalta(alumno) {
       alumno.convirtiendoRetrasoEnFalta = true;
 
@@ -1136,7 +1131,10 @@ window.vueApp = new Vue({
         });
     },
 
-
+    /*
+    Metodo el cual se convierte la falta en actualizando
+    el documento correspondiente en la base de datos
+    */
     convertirFaltaEnRetraso(alumno) {
       alumno.convirtiendoFaltaEnRetraso = true;
 
@@ -1223,7 +1221,9 @@ window.vueApp = new Vue({
       
     },
 
-
+    /*
+    Metodo en el cual se cargan los datos del alumno
+    */
     cargarDatosAlumnosRecursivamente() {
     
       console.log("Quedan por cargar los datos de " + vueApp.arrayTemporalAlumnosParaCargarDatos.length + " alumnos!")
@@ -1279,27 +1279,11 @@ window.vueApp = new Vue({
         vueApp.cargadosTodosLosDatosDeLosAlumnosEnPantalla = true;
         console.log("Se han terminado de cargar todos los datos personales de los alumnos!!")
         vueApp.$forceUpdate();
-        
-
-        
-
         }
         console.log(vueApp.alumnosDelGrupoEnPantalla);
       
 
     },
-
-
-
-
-    enviarSmsAPadres(alumno, fecha, sesion, materia, faltaPreexistente) {
-
-      alert("Funcion no disponible en lab");
-
-    },
-
-
-
 
     sinAcentos(texto) {
       var cadena = texto;
