@@ -109,9 +109,9 @@
             </button>
         
 
-        <div v-if="arrayAlumnosOcultos.length > 0" class="lista">
-          Selecciona un alumno oculto:
-          <select class="form-control" v-model="alumnoOcultoSeleccionado">
+        <div class="form-group" v-if="arrayAlumnosOcultos.length > 0">
+           <label for="exampleFormControlSelect2">Selecciona alumno a desocultar:</label>
+          <select class="form-control" v-model="alumnoOcultoSeleccionado" >
             <option disabled value="">Alumno</option>
             <option
               v-for="alumno in arrayAlumnosOcultos"
@@ -125,7 +125,7 @@
       </div>
         <div v-for="alumno in alumnosDelGrupoEnPantalla" v-bind:class="obtenerClaseCssAlumno(alumno)">
         
-          <div class="col-xs-4 col-md-4 col-lg-2 zona-imagen-alumno">
+          <div class="col-xs-4 col-md-4 col-lg-2 zona-imagen-alumno" v-show="!alumno.oculto">
 
             
             <img v-bind:src="obtenerEnlaceFoto(alumno.matricula)" class="imagen-real-alumno img-fluid"
@@ -137,7 +137,7 @@
               <span v-show="alumno.laFaltaDelAlumnoEstaJustificada">FALTA JUSTIFICADA</span>
             </div>
           </div>
-          <div class="col-xs-8 col-md-8 col-lg-10 zona-nombre-alumno">
+          <div class="col-xs-8 col-md-8 col-lg-10 zona-nombre-alumno" v-show="!alumno.oculto">
             <div>
               <strong>{{ alumno.apellidos }}</strong>, {{ alumno.nombre }}
             </div>
@@ -145,7 +145,7 @@
               <span v-if="alumno.datos.edad != null">{{ alumno.datos.edad }} años</span>
               <span v-if="alumno.datos.edad == null">Calculando edad...</span>
             </div>
-            <div class=" zona-botones-alumno ">
+            <div class=" zona-botones-alumno " v-show="!alumno.oculto">
 
               
               <button role="button" type="button" class="btn btn-outline-info btn-sm "
@@ -202,7 +202,7 @@
                 <span>Ocultar</span>
               </button>
 
-            </div>
+            
           </div>
        
       

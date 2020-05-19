@@ -708,12 +708,19 @@ window.vueApp = new Vue({
       objetoAlumnoOculto.posicion = posicion;
       var idAlumnoOculto = "M" + alumno.matricula + "-D" + anoSelec + "-" + mesSelec + "-" + diaSelec + "-S" +
       vueApp.sesionSeleccionada + " -M " + vueApp.materiaSeleccionada;
-     
+       if(alumno.llegoConRetraso){
+          alumno.llegoConRetraso = false;
+        }
+        else if(alumno.eseAlumnoFalto){
+          alumno.eseAlumnoFalto = false;
+        }
+        else if(alumno.laFaltaDelAlumnoEstaJustificada){
+          alumno.laFaltaDelAlumnoEstaJustificada = false;
+        }
+      console.log("Alumno a ocultar",vueApp.alumnosDelGrupoEnPantalla[posicion]);
       vueApp.dbTablasComunes.collection("ocultos").doc(idAlumnoOculto).set(objetoAlumnoOculto).then(function(){
         console.log("Alumno grabada correctamente en la coleccion 'ocultos' con id de documento " + idAlumnoOculto);
         vueApp.arrayAlumnosOcultos.push(alumno);
-    
-        console.log(alumno);
         if(alumno.llegoConRetraso){
           alumno.llegoConRetraso = false;
         }
@@ -723,13 +730,15 @@ window.vueApp = new Vue({
         else if(alumno.laFaltaDelAlumnoEstaJustificada){
           alumno.laFaltaDelAlumnoEstaJustificada = false;
         }
+        console.log(alumno);
+        
         alumno.oculto = true;
-        vueApp.alumnosDelGrupoEnPantalla.splice(posicion,1);
+        
         vueApp.hayOcultos = true;
         console.log("Alumno" + alumno.matricula + alumno.nombre +alumno.apellidos + "ocultos");
-        
+        vueApp.alumnosDelGrupoEnPantalla.sort(vueApp.compararPorApellido);
       });
-      console.log();
+      
     },
 
     /*
@@ -787,16 +796,13 @@ window.vueApp = new Vue({
             if (doc.exists) {
               var datos = doc.data();    
               console.log("Posicion que tiene el alumno",datos.posicion);
-              vueApp.alumnosDelGrupoEnPantalla.splice(datos.posicion,0,vueApp.arrayAlumnosOcultos[posicion]);
+              vueApp.alumnoOcultoSeleccionado.oculto = false;
               vueApp.alumnosDelGrupoEnPantalla[datos.posicion].oculto = false;
-              
-              var num = vueApp.arrayAlumnosOcultos.indexOf(vueApp.alumnosDelGrupoEnPantalla[datos.posicion]);
-              if(num !== -1){
-                vueApp.arrayAlumnosOcultos.splice(num,1);
+              vueApp.arrayAlumnosOcultos.splice(posicion,1);
                 if(vueApp.arrayAlumnosOcultos.length === 0){
                   vueApp.hayOcultos = false;
                 }
-              }
+              
               if(datos.falta === "falta"){
                 vueApp.alumnosDelGrupoEnPantalla[datos.posicion].eseAlumnoFalto = true;
               }
@@ -835,11 +841,8 @@ window.vueApp = new Vue({
             if (doc.exists) {
                 var datos = doc.data();
                 console.log("A ver si esta",datos.posicion);
+                vueApp.alumnosDelGrupoEnPantalla[datos.posicion].oculto = false;
                 alumnoAPoner = vueApp.arrayAlumnosOcultos.shift();
-                console.log(vueApp.arrayAlumnosOcultos);
-                vueApp.alumnosDelGrupoEnPantalla.splice(datos.posicion,0,alumnoAPoner);
-                
-                console.log("Array",vueApp.arrayAlumnosOcultos);
                 if(datos.falta === "falta"){
                   vueApp.alumnosDelGrupoEnPantalla[datos.posicion].eseAlumnoFalto = true;
                 }
@@ -849,7 +852,7 @@ window.vueApp = new Vue({
                 else if(datos.falta === "justificada"){
                   vueApp.alumnosDelGrupoEnPantalla[datos.posicion].laFaltaDelAlumnoEstaJustificada = true;
                 }
-                vueApp.alumnosDelGrupoEnPantalla[datos.posicion].oculto = false;
+                
                 vueApp.dbTablasComunes.collection("ocultos").doc(idAlumnoOculto).delete().then(function() {
                   vueApp.desocultarAlumnos();
                 })
@@ -1175,14 +1178,41 @@ window.vueApp = new Vue({
     */
     verSiHayAlumnoOculto(matricula){
       console.log("Vamos a ocultar a los alumnos que estaban oculto de antes");
-     
+      var mesSelec = vueApp.fechaSeleccionada.substring(5, 7);
+      var diaSelec = vueApp.fechaSeleccionada.substring(8, 10);
+      var materia = vueApp.materiaSeleccionada;
+      var sesion = vueApp.sesionSeleccionada;
+      var anoSelec = vueApp.fechaSeleccionada.substring(0, 4);
       for(var x = 0; x < vueApp.arrayMatriculaSesion.length;x++){
         if(vueApp.arrayMatriculaSesion[x] === matricula){
           console.log("Alumno oculto con , matricula" , vueApp.arrayMatriculaSesion[x]);
           for(var i = 0; i < vueApp.alumnosDelGrupoEnPantalla.length;i++){
             if(vueApp.alumnosDelGrupoEnPantalla[i].matricula === vueApp.arrayMatriculaSesion[x]){
+              
+          vueApp.dbTablasComunes.collection("ocultos")
+          .where("ano", "==", Number(anoSelec))
+          .where("mes", "==", Number(mesSelec))
+          .where("dia", "==", Number(diaSelec))
+          .where("materia", "==", materia)
+          .where("sesion", "==", sesion)
+          .where("matricula","==",matricula)
+          .get().then(function(datosRecibidos){
+            datosRecibidos.forEach(function (doc) {
+              var datos = doc.data();
+              if(datos.falta === "falta"){
+                vueApp.alumnosDelGrupoEnPantalla[i].eseAlumnoFalto = false;
+              }
+              else if(datos.falta === "retraso"){
+                vueApp.alumnosDelGrupoEnPantalla[i].llegoConRetraso = false;
+              }
+              else if(datos.falta === "justificada"){
+                vueApp.alumnosDelGrupoEnPantalla[i].laFaltaDelAlumnoEstaJustificada = false;
+              }
               vueApp.arrayAlumnosOcultos.push(vueApp.alumnosDelGrupoEnPantalla[i]);
-              vueApp.alumnosDelGrupoEnPantalla.splice(i,1);
+              vueApp.alumnosDelGrupoEnPantalla[i].oculto = true;
+            });
+            
+      });
               break;
             }
           }

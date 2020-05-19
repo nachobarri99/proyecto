@@ -293,9 +293,12 @@
 
              El alumno {{ datosAlumnoSeleccionado.nombre }} 
              {{datosAlumnoSeleccionado.apellido1 }} {{datosAlumnoSeleccionado.apellido2 }}
-             tiene un total de: {{ numeroDeFaltasDelAlumnoSeleccionado}} faltas<span v-show="mostrarJustificadas == true && mostrarNoJustificadas == false">
+              tiene un total de: <span v-if="materiaSeleccionada === ''">{{ numeroDeFaltasDelAlumnoSeleccionado}} faltas</span>
+               <span v-if="materiaSeleccionada !== ''"> <span v-for="(arrayFaltas, materia) in faltasFiltradasPorMateria">
+                {{ arrayFaltas.length}} faltas </span></span>
+              <span v-show="mostrarJustificadas == true && mostrarNoJustificadas == false">
              justificadas</span> <span v-show="mostrarJustificadas == false && mostrarNoJustificadas == true">no justificadas</span> 
-             <span v-if="materiaSeleccionada !== ''">
+             <span v-if="materiaSeleccionada !== ''"> 
               en la materia {{materiaSeleccionada}}</span>
              durante el presente curso escolar.
 
@@ -308,7 +311,7 @@
             datosAlumnoSeleccionado.apellido1 }} {{
             datosAlumnoSeleccionado.apellido2 }} del grupo {{grupoSeleccionado}}
             durante el presente curso escolar
-            <span v-show="materiaSeleccionada.length > 0"
+            <span v-if="materiaSeleccionada !== ''"
               >en la materia {{materiaSeleccionada}}</span
             >
           </p>

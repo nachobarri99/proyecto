@@ -512,7 +512,14 @@ new Vue({
     cargarMateriasAlumnoSeleccionado() {
       var procesoActual = "obtener las materias del alumno seleccionado";
       console.log("Iniciando el proceso de " + procesoActual);
-
+      var tutoria = false;
+      for(var i = 0; i < vueApp.arrayEso.length;i++){
+          if(vueApp.grupoSeleccionado.includes(vueApp.arrayEso[i])){
+            tutoria = true;
+            break;
+            }
+        }
+      
       var referencia = this.dbTablasComunes.collection("alu-gru");
       referencia
         .where("matricula", "==", vueApp.alumnoSeleccionado)
@@ -524,8 +531,20 @@ new Vue({
           querySnapshot.forEach(function(doc) {
             vueApp.documentosRecibidosTablasComunesV2++;
             vueApp.datosMateriasAlumnoSeleccionado.push(doc.data());
+            console.log("Miramos los datos",doc.data());
+            
           });
-          console.log(vueApp.datosMateriasAlumnoSeleccionado);
+        
+          if(tutoria === true){
+            var objetoTut = {};
+            objetoTut.apellidos = vueApp.datosMateriasAlumnoSeleccionado[0].apellidos;
+            objetoTut.grupo = vueApp.datosMateriasAlumnoSeleccionado[0].grupo;
+            objetoTut.materia = "TUT";
+            objetoTut.matricula = vueApp.datosMateriasAlumnoSeleccionado[0].matricula;
+            objetoTut.nombre = vueApp.datosMateriasAlumnoSeleccionado[0].nombre;
+            vueApp.datosMateriasAlumnoSeleccionado.push(objetoTut);
+          }
+          console.log("Materias alumno seleccionado",vueApp.datosMateriasAlumnoSeleccionado);
         })
         
         .catch(function(error) {
@@ -915,7 +934,8 @@ new Vue({
       console.log(arrayTemporalOrdenado);
 
       var arrayFiltradoPorMateria = arrayTemporalOrdenado;
-
+      
+      vueApp.numeroDeFaltasDelAlumnoSeleccionado = arrayFiltradoPorMateria;
       if (vueApp.materiaSeleccionada.length > 0) {
         arrayFiltradoPorMateria = _.filter(arrayFiltradoPorMateria, function(
           elemento
