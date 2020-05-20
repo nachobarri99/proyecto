@@ -826,6 +826,8 @@ window.vueApp = new Vue({
         var idAlumnoOculto = "M" + vueApp.arrayAlumnosOcultos[vueApp.contadorDesocultar].matricula + "-D" + anoSelec 
         + "-" + mesSelec + "-" + diaSelec + "-S" + vueApp.sesionSeleccionada + " -M " + vueApp.materiaSeleccionada;
        
+        vueApp.hayOcultos = false;
+        
         console.log("Alumno Oculto",vueApp.arrayAlumnosOcultos[vueApp.contadorDesocultar]);
         var docRef = vueApp.dbTablasComunes.collection("ocultos").doc(idAlumnoOculto);
 
@@ -858,7 +860,6 @@ window.vueApp = new Vue({
       else{
         vueApp.contadorDesocultar = 0;
         vueApp.arrayAlumnosOcultos = [];
-        vueApp.hayOcultos = false;
         console.log("Desocultados");
         console.log("Alumnos grupo",vueApp.alumnosDelGrupoEnPantalla);
       }
