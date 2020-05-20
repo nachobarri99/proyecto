@@ -713,6 +713,10 @@ window.vueApp = new Vue({
         else if(alumno.laFaltaDelAlumnoEstaJustificada){
           alumno.laFaltaDelAlumnoEstaJustificada = false;
         }
+        
+        vueApp.alumnosDelGrupoEnPantalla.splice(vueApp.alumnosDelGrupoEnPantalla.indexOf(alumno),1);
+        
+        
         console.log(alumno);
         
         vueApp.hayOcultos = true;
@@ -780,8 +784,9 @@ window.vueApp = new Vue({
             if (doc.exists) {
               var datos = doc.data();    
               console.log("Posicion que tiene el alumno",datos.posicion);
+              vueApp.alumnosDelGrupoEnPantalla.splice(datos.posicion,0,vueApp.arrayAlumnosOcultos[posicion]);
               vueApp.alumnoOcultoSeleccionado.oculto = false;
-              vueApp.alumnosDelGrupoEnPantalla[datos.posicion].oculto = false;
+              vueApp.alumnosDelGrupoEnPantalla[datos.posicion].oculto = false;   
               vueApp.arrayAlumnosOcultos.splice(posicion,1);
                 if(vueApp.arrayAlumnosOcultos.length === 0){
                   vueApp.hayOcultos = false;
@@ -828,6 +833,8 @@ window.vueApp = new Vue({
             if (doc.exists) {
                 var datos = doc.data();
                 console.log("A ver si esta",datos.posicion);
+                vueApp.alumnosDelGrupoEnPantalla.splice(vueApp.copiaAlumnos.indexOf(vueApp.arrayAlumnosOcultos[vueApp.contadorDesocultar])
+                  ,0,vueApp.arrayAlumnosOcultos[vueApp.contadorDesocultar]);
                 vueApp.alumnosDelGrupoEnPantalla[datos.posicion].oculto = false;
                 alumnoAPoner = vueApp.arrayAlumnosOcultos.shift();
                 if(datos.falta === "falta"){
@@ -1202,7 +1209,8 @@ window.vueApp = new Vue({
                 vueApp.alumnosDelGrupoEnPantalla[i].laFaltaDelAlumnoEstaJustificada = false;
               }
               vueApp.alumnosDelGrupoEnPantalla[i].oculto = true;
-              vueApp.arrayAlumnosOcultos.push(vueApp.alumnosDelGrupoEnPantalla[i]);     
+              vueApp.arrayAlumnosOcultos.push(vueApp.alumnosDelGrupoEnPantalla[i]);
+              vueApp.alumnosDelGrupoEnPantalla.splice(i,1);
             });
             
       });
