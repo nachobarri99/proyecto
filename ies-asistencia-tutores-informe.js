@@ -379,10 +379,10 @@ new Vue({
             vueApp.materiasGrupo.push(materia);
           })
           for(var i = 0; i < vueApp.arrayEso.length;i++){
-          if(vueApp.grupoSeleccionado === vueApp.arrayEso[i]){
-            vueApp.materiasGrupo.push("TUT");
-            break;
-          }
+            if(vueApp.grupoSeleccionado === vueApp.arrayEso[i]){
+              vueApp.materiasGrupo.push("TUT");
+              break;
+            }
         }
           vueApp.materiasGrupo = _.uniqWith(vueApp.materiasGrupo);
           vueApp.materiasGrupo.sort(new Intl.Collator().compare);
@@ -674,22 +674,22 @@ new Vue({
       }
           arrayAsignaturas = [];
           arrayAlumno = arrayAlumno.concat(arrayFaltas);
-          arrayAlumno.unshift(objetoMatricula,objetoNombre);
+          
           
           //Bucle en el cual, añadimos las faltas del alumno
           for(var i = 0; i < vueApp.faltasTotales.length;i++){
             if(vueApp.faltasTotales[i].matricula === alumnoPasado.matricula){
-              for(var j = 2; j < arrayFaltas.length;j++){
-                if(vueApp.faltasTotales[i].materia === arrayFaltas[j].materia){
-                  console.log("Añadiendo falta " + alumnoPasado.matricula + arrayFaltas[j].materia + vueApp.faltasTotales[i].faltas);
-                  arrayFaltas[j].datosAMostrar += vueApp.faltasTotales[i].faltas; 
+              for(var j = 0; j < arrayAlumno.length;j++){
+                if(vueApp.faltasTotales[i].materia === arrayAlumno[j].materia){
+                  console.log("Añadiendo falta " + alumnoPasado.matricula + arrayAlumno[j].materia + vueApp.faltasTotales[i].faltas);
+                  arrayAlumno[j].datosAMostrar += vueApp.faltasTotales[i].faltas; 
                   
                 }
               }
             }
           }
           
-
+          arrayAlumno.unshift(objetoMatricula,objetoNombre);
           vueApp.datosGrupoSeleccionado.push(arrayAlumno);
           
            console.log("Materias del alumno " + alumnoPasado.matricula + "" , vueApp.datosGrupoSeleccionado);
